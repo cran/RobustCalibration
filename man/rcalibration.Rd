@@ -97,11 +97,11 @@ Setting up the Calibration model for estimating the parameters via MCMC with or 
 %%  \item{comp1 }{Description of 'comp1'}
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
-If there is no emulator (i.e. simul_type is not 0), \code{rcalibration} returns an S4 object of class \code{rcalibration} (see \code{rcalibration-class}).
+\code{rcalibration} returns an S4 object of class \code{rcalibration} (see \code{rcalibration-class}).
 
-If there is an emulator (i.e. simul_type is 0), \code{rcalibration} returns a list with 
-\item{rcalibration}{an S4 object of class \code{rcalibration} (see \code{rcalibration-class}.}
-\item{emulator}{an S4 object of class \code{rgasp} produced by RobustGaSP R Package .}
+%If there is an emulator (i.e. simul_type is 0), \code{rcalibration} returns a list with 
+%\item{rcalibration}{an S4 object of class \code{rcalibration} (see \code{rcalibration-class}.}
+%\item{emulator}{an S4 object of class \code{rgasp} produced by RobustGaSP R Package .}
 
 
 }
@@ -118,7 +118,10 @@ K. R. Anderson and M. P. Poland (2017), \emph{Abundant carbon in the mantle bene
 
 M. Gu (2016), \emph{Robust Uncertainty Quantification and Scalable Computation for Computer Models with Massive Output}, Ph.D. thesis., Duke University.
 
-M. Gu and L. Wang (2017) \emph{An improved approach to Bayesian computer model calibration and prediction}. arXiv preprint arXiv:1707.08215.
+M. Gu and L. Wang (2017) \emph{Scaled Gaussian Stochastic Process for Computer Model Calibration and Prediction}. arXiv preprint arXiv:1707.08215.
+
+M. Gu (2018) \emph{Jointly Robust Prior for Gaussian Stochastic Process in Emulation, Calibration and Variable Selection
+}. arXiv preprint arXiv:1804.09329.
 }
 
 \author{
@@ -169,15 +172,20 @@ math_model_eg1<-function(x,theta){
   sin(theta*x)+x  
 }
 
-##fit two models the S-GaSP model for the discrepancy
+##fit the S-GaSP model for the discrepancy
 ##one can choose the discrepancy_type to GaSP, S-GaSP or no discrepancy
 ##p_theta is the number of parameters to calibrate and user needs to specifiy 
 ##one may also want to change the number of posterior samples by change S and S_0
-
-model_sgasp=rcalibration(design=input, observations=output, p_theta=1,simul_type=1,
+p_theta=1
+model_sgasp=rcalibration(design=input, observations=output, p_theta=p_theta,simul_type=1,
                          math_model=math_model_eg1,theta_range=matrix(c(0,3),1,2)
                          ,S=10000,S_0=2000,discrepancy_type='S-GaSP')
 
+##if the acceptance rate is too low or two high, one can adjust sd_proposal, e.g.
+#model_sgasp=rcalibration(design=input, observations=output, p_theta=1,simul_type=1,
+#                         sd_proposal=c(rep(0.02,p_theta),rep(0.2,dim(input)[2]),0.2)
+#                         math_model=math_model_eg1,theta_range=matrix(c(0,3),1,2)
+#                         ,S=10000,S_0=2000,discrepancy_type='S-GaSP')
 
 ##posterior samples of calibration parameter and value
 plot(model_sgasp@post_sample[,1],type='l',xlab='num',ylab=expression(theta))   
@@ -204,61 +212,59 @@ plot(model_sgasp_with_mean@post_sample[,1],type='l',xlab='num',ylab=expression(t
 plot(model_sgasp_with_mean@post_value,type='l',xlab='num',ylab='posterior value')   
 
 
-
-#-------------------------------------------------------------
-# an example with multiple local maximum of minimum in L2 loss
-# for combing the emulator
-#-------------------------------------------------------------
-
-## the reality 
-test_funct_eg1<-function(x){
-  x*cos(3/2*x)+x
-}
-
-## obtain 25 data from the reality plus a noise
-set.seed(1)
-## 10 data points are very small, one may want to add more data
-n=15
-input=seq(0,5,5/(n-1))
-input=as.matrix(input)
-
-output=test_funct_eg1(input)+rnorm(length(input),mean=0,sd=0.1)
-
-num_obs=n=length(output)
-
-## the math model 
-math_model_eg1<-function(x,theta){
-  sin(theta*x)+x  
-}
-
-##let's build an emulator for the case if the math model is too slow
-
-# let's say we can only run the math model n_design times
-n_design=80
-
-design_simul=matrix(runif(n_design*2),n_design,2)
-design_simul[,1]=5*design_simul[,1]   ##the first one is the observed input x
-design_simul[,2]=3*design_simul[,2]   ##the second one is the calibration parameter 
-
-output_simul=math_model_eg1(design_simul[,1],design_simul[,2])
-
-
-
-##this is a little slow compared with the previous model
 \dontrun{
-model_sgasp_emulator=rcalibration(design=input, observations=output, p_theta=1,simul_type=0, 
-                         input_simul=design_simul, output_simul=output_simul,
-                         theta_range=matrix(c(0,3),1,2),
-                         S=10000,S_0=2000,discrepancy_type='S-GaSP')
+  #-------------------------------------------------------------
+  # an example with multiple local maximum of minimum in L2 loss
+  # for combing the emulator
+  #-------------------------------------------------------------
+  
+  ## the reality 
+  test_funct_eg1<-function(x){
+    x*cos(3/2*x)+x
+  }
+  
+  ## obtain 20 data from the reality plus a noise
+  set.seed(1)
+  n=20
+  input=seq(0,5,5/(n-1))
+  input=as.matrix(input)
+  
+  output=test_funct_eg1(input)+rnorm(length(input),mean=0,sd=0.05)
+  
+  num_obs=n=length(output)
+  
+  ## the math model 
+  math_model_eg1<-function(x,theta){
+    sin(theta*x)+x  
+  }
+  
+  ##let's build an emulator for the case if the math model is too slow
+  
+  # let's say we can only run the math model n_design times
+  n_design=80
+  
+  design_simul=matrix(runif(n_design*2),n_design,2)
+  design_simul[,1]=5*design_simul[,1]   ##the first one is the observed input x
+  design_simul[,2]=3*design_simul[,2]   ##the second one is the calibration parameter 
+  
+  output_simul=math_model_eg1(design_simul[,1],design_simul[,2])
+  
+  
+  
+  ##this is a little slow compared with the previous model
+  model_sgasp_emulator=rcalibration(design=input, observations=output, p_theta=1,simul_type=0, 
+                                    input_simul=design_simul, output_simul=output_simul,
+                                    theta_range=matrix(c(0,3),1,2),
+                                    S=10000,S_0=2000,discrepancy_type='S-GaSP')
+  
+  ##now the output is a list
+  show(model_sgasp_emulator)
 
-##now the output is a list
-show(model_sgasp_emulator$model)
-show(model_sgasp_emulator$emulator)
-
-##here is the plot
-plot(model_sgasp_emulator$model@post_sample[,1],type='l',xlab='num',ylab=expression(theta))   
-plot(model_sgasp_emulator$model@post_value,type='l',xlab='num',ylab='posterior value')   
+  ##here is the plot
+  plot(model_sgasp_emulator@post_sample[,1],type='l',xlab='num',ylab=expression(theta))   
+  plot(model_sgasp_emulator@post_value,type='l',xlab='num',ylab='posterior value')   
 }
+
 
 
 }

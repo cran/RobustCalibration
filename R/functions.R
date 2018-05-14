@@ -8,7 +8,7 @@ mathematical_model_eval<-function(input,theta,simul_type, emulator,math_model){
   
   if(simul_type==0){ ###emulator
     testing_input=cbind(input, t(matrix(theta,p_theta,n_testing)));
-    cm_obs_cur=Sample.rgasp(emulator,testing_input);
+    cm_obs_cur=Sample(emulator,testing_input);
   }else if(simul_type==1){
     testing_input=cbind(input, t(matrix(theta,p_theta,n_testing)));
     cm_obs_cur=math_model(input, theta);
@@ -43,7 +43,7 @@ post_sample_with_discrepancy<-function(input, output, R0_list, kernel_type, p_th
                              discrepancy_type,simul_type,emulator,math_model){
   
 
-   mylist=as.list(1:4);
+  mylist=as.list(1:4);
   
   #Initialization
   #MatrixXd input=Input_list[0];
@@ -109,8 +109,8 @@ post_sample_with_discrepancy<-function(input, output, R0_list, kernel_type, p_th
   
   #MatrixXd L_propose;
   
-  accept_N_theta=0;
-  accept_N_beta=0;
+  accept_S_theta=0;
+  accept_S_beta=0;
   count_dec_record=rep(0,S); # this is to count how many sample points are outside the boundary and get rejected
   
   post_cur=0;
@@ -143,7 +143,7 @@ post_sample_with_discrepancy<-function(input, output, R0_list, kernel_type, p_th
     }
     #cat(post_cur,'\n')
     #cat(par_cur,'\n')
-    #cat(accept_N_theta,'\n')
+    #cat(accept_S_theta,'\n')
     
     par_cur[(p_theta+p_x+2):(p_theta+p_x+2+p_theta_m)]=Sample_sigma_2_theta_m(par_cur,L,output,p_theta,p_x,X,have_trend,cm_obs_cur);
     
@@ -197,7 +197,7 @@ post_sample_with_discrepancy<-function(input, output, R0_list, kernel_type, p_th
         par_cur=param_propose;
         post_cur=post_propose;
         cm_obs_cur=cm_obs_propose;
-        accept_N_theta=accept_N_theta+1;
+        accept_S_theta=accept_S_theta+1;
         
         #cat(par_cur,'\n')
         
@@ -237,7 +237,7 @@ post_sample_with_discrepancy<-function(input, output, R0_list, kernel_type, p_th
       par_cur=param_propose;
       post_cur=post_propose;
       L=L_propose;
-      accept_N_beta=accept_N_beta+1;
+      accept_S_beta=accept_S_beta+1;
     }
     
     record_par[i_S,]=par_cur;
@@ -247,18 +247,18 @@ post_sample_with_discrepancy<-function(input, output, R0_list, kernel_type, p_th
     #record_post(i_S)=post_cur;
   }
   
-  cat('Done with posterior sampling \n')
-  
 
   mylist[[1]]=record_par;
   mylist[[2]]=record_post;
   
-  mylist[[3]]=c(accept_N_theta,accept_N_beta);
+  mylist[[3]]=c(accept_S_theta,accept_S_beta);
   
   mylist[[4]]=count_dec_record;
   
-  cat(accept_N_theta, ' of ', S, ' proposed posterior samples of calibration parameters are accepted \n')
-  cat(accept_N_beta, ' of ', S, ' proposed posterior samples of range and nugget parameters are accepted \n')
+  cat('Done with posterior sampling \n')
+  
+  cat(accept_S_theta, ' of ', S, ' proposed posterior samples of calibration parameters are accepted \n')
+  cat(accept_S_beta, ' of ', S, ' proposed posterior samples of range and nugget parameters are accepted \n')
   
   return(mylist);
   
@@ -275,7 +275,7 @@ post_sample_no_discrepancy<-function(input, output, R0_list,  p_theta, output_we
                                 discrepancy_type, simul_type,emulator,math_model){
   
   
-  mylist=as.list(1:4);
+  mylist=list();
   
   #Initialization
   num_obs=dim(input)[1];
@@ -300,7 +300,7 @@ post_sample_no_discrepancy<-function(input, output, R0_list,  p_theta, output_we
   record_par=matrix(0,S,p_theta+1+p_theta_m);
   record_post=rep(0,S)
 
-  accept_N_theta=0;
+  accept_S_theta=0;
   count_dec_record=rep(0,S); # this is to count how many sample points are outside the boundary and get rejected
   
   
@@ -321,25 +321,6 @@ post_sample_no_discrepancy<-function(input, output, R0_list,  p_theta, output_we
   param_propose=par_cur;
   r_ratio=0;
 
-  
-  
-  
-
-  #start of the sampling
-  
-
-
-  #VectorXd cm_obs_cur;
-  #VectorXd cm_obs_propose;
-  
-  #VectorXd emulator_par= VectorXd::Zero(p_x+p_theta);
-  #if(simul_type==0){
-  #  Input_list[5]; //additional parameter for emulator
-  #}
-  
-  #MatrixXd simul_input=  Input_list[18];
-  #VectorXd simul_output=  Input_list[19];
-  
   
   cm_obs_cur=mathematical_model_eval(input,param[1:p_theta],simul_type,emulator,math_model);
   
@@ -397,48 +378,12 @@ post_sample_no_discrepancy<-function(input, output, R0_list,  p_theta, output_we
         par_cur=param_propose;
         post_cur=post_propose;
         cm_obs_cur=cm_obs_propose;
-        accept_N_theta=accept_N_theta+1;
+        accept_S_theta=accept_S_theta+1;
       }
       
     }
     
-    # theta_cur=par_cur.head(p_theta);
-    # decision_0=false;
-    # 
-    # 
-    # for(int i_theta=0; i_theta<p_theta; ++i_theta){
-    #   theta_sample(i_theta)=theta_cur(i_theta)+sd_theta(i_theta)*(theta_range(i_theta,1)-theta_range(i_theta,0))*distribution_stan_norm(generator);
-    #   if((theta_sample(i_theta)>theta_range(i_theta,1))|| (theta_sample(i_theta)<theta_range(i_theta,0)) ){
-    #     decision_0=true;
-    #     count_dec_record(i_S)=1;
-    #     break;
-    #   }
-    #   
-    # }
-    # 
-    # 
-    # 
-    # //if decision_0==true, then stay at original place
-    # //ow see whether we accept the sample
-    # if(decision_0==false){
-    #   param_propose=par_cur;
-    #   param_propose.head(p_theta)=theta_sample;
-    #   
-    #   cm_obs_propose=Mathematical_model_eval(theta_sample,input,simul_type,emulator_par,simul_input,simul_output);
-    #   
-    #   
-    #   post_propose=Log_marginal_post_no_discrepancy(param_propose,output,p_theta,X,have_mean, inv_output_weights,cm_obs_propose);
-    #   r_ratio=exp(post_propose-post_cur);
-    #   decision=Accept_proposal(r_ratio);
-    #   if(decision){
-    #     par_cur=param_propose;
-    #     post_cur=post_propose;
-    #     cm_obs_cur=cm_obs_propose;
-    #     accept_N_theta=accept_N_theta+1;
-    #   }
-    #   
-    # }
-    
+
     
     record_par[i_S,]=par_cur;
     record_post[i_S]=post_cur;
@@ -451,11 +396,11 @@ post_sample_no_discrepancy<-function(input, output, R0_list,  p_theta, output_we
   mylist[[1]]=record_par;
   mylist[[2]]=record_post;
   
-  mylist[[3]]=c(accept_N_theta);
+  mylist[[3]]=c(accept_S_theta);
   
   mylist[[4]]=count_dec_record;
   
-  cat(accept_N_theta, ' of ', S, ' proposed posterior samples samples of calibration parameters are accepted \n')
+  cat(accept_S_theta, ' of ', S, ' proposed posterior samples samples of calibration parameters are accepted \n')
   
     
   return(mylist);
@@ -465,3 +410,296 @@ post_sample_no_discrepancy<-function(input, output, R0_list,  p_theta, output_we
 
 
 
+
+post_sample_MS <- function(model,par_cur_theta, par_cur_individual, emulator,math_model_MS){ 
+  
+  mylist=list();
+
+  ##################
+  #3177.183 2593.284
+  #[1] -6.474958e+00 -6.677884e+00 -1.070080e+01  1.854997e-05  8.482068e-03
+  #[1] 3.267227e+01 7.877541e+02 1.536619e+03 1.464163e-02 3.003662e-01
+  #[1] 3186.917 2595.137
+  
+  record_par_individual=as.list(rep(0,model@num_sources))
+  for(i in 1: model@num_sources){
+    if(model@discrepancy_type[i]=='GaSP' | model@discrepancy_type[i]=='S-GaSP'){
+      record_par_individual[[i]]=  matrix(0,model@S,model@p_x[i]+2+model@q[i]);
+    }else{
+      record_par_individual[[i]]=  matrix(0,model@S,1+model@q[i]);
+      
+    }
+  }
+  
+  record_post=matrix(0,model@S,model@num_sources)
+  record_theta=matrix(0,model@S,model@p_theta)
+  
+  
+  #MatrixXd L;
+  L=as.list(rep(0,model@num_sources))
+  L_propose=L
+  
+  for(i in 1: model@num_sources){
+      if(model@discrepancy_type[i]=='GaSP'){
+        L[[i]]=Get_R_new(exp(par_cur_individual[[i]][1:model@p_x[i]]),exp(par_cur_individual[[i]][model@p_x[i]+1]),
+                         model@R0[[i]],model@kernel_type[i],model@alpha[[i]], 1/model@output_weights[[i]]);
+      }else if(model@discrepancy_type[i]=='S-GaSP'){
+
+        L[[i]]=Get_R_z_new(exp(par_cur_individual[[i]][1:model@p_x[i]]),exp(par_cur_individual[[i]][model@p_x[i]+1]),
+                           model@tilde_lambda[i],model@R0[[i]],model@kernel_type[i],
+                           model@alpha[[i]], 1/model@output_weights[[i]] );
+      }
+  }
+  #L_propose=L
+  #MatrixXd L_propose;
+  
+  accept_S_theta=0;
+  accept_N_cov_par=rep(0,model@num_sources);
+  accept_S_beta=rep(0,model@num_sources);
+  
+  count_dec_record=rep(0,model@S); # this is to count how many sample points are outside the boundary and get rejected for calibration
+  
+  #post_cur=0;
+  
+  theta_cur=par_cur_theta;
+  theta_sample=rep(0,model@p_theta);
+  
+  individual_par_cur=par_cur_individual
+  
+  ###########################
+  #param_propose=par_cur;
+  #xi_sample=rep(0,p_x);
+  #log_eta_sample=0;
+  #post_propose;
+  r_ratio=0;
+  
+  cm_obs_cur=as.list(rep(0,model@num_sources))
+  cm_obs_propose=cm_obs_cur
+  
+  for(i in 1:model@num_sources){
+    cm_obs_cur[[i]]=mathematical_model_eval(model@input[[i]],theta_cur[model@index_theta[[i]]],model@simul_type[i],emulator[[i]],math_model_MS[[i]]);
+  }
+  
+  c_prop=1/4
+  
+  
+  post_cur=rep(0,model@num_sources)
+  post_propose=rep(0,model@num_sources)
+  
+  for (i_S in 1:model@S){
+    if(i_S==floor(model@S*c_prop)){
+      #cat(post_cur,'\n')
+      cat(c_prop*model@S, ' of ', model@S, ' posterior samples are drawn \n')
+      c_prop=c_prop+1/4
+    }
+
+    #print(i_S)
+    #print(accept_S_theta)
+    #print(individual_par_cur[[1]])
+    #print(theta_cur)
+    #print(post_cur)
+    #print(individual_par_cur[[2]])
+    
+    #print(post_cur)
+    
+    
+    for(i in 1:model@num_sources){
+      if(model@discrepancy_type[i]=='no-discrepancy'){
+        sigma_2_theta_m_sample=Sample_sigma_2_theta_m_no_discrepancy(c(theta_cur[model@index_theta[[i]]], 
+                                                        individual_par_cur[[i]]),
+                                                      model@output[[i]],length(model@index_theta[[i]]),
+                                                      model@X[[i]],
+                                                      model@have_trend[i],1/model@output_weights[[i]],cm_obs_cur[[i]] );
+        
+        
+        individual_par_cur[[i]]=sigma_2_theta_m_sample
+        
+        post_cur[i]=Log_marginal_post_no_discrepancy(c(theta_cur[model@index_theta[[i]]], 
+                                                       individual_par_cur[[i]]),model@output[[i]],length(model@index_theta[[i]]),
+                                                     model@X[[i]],
+                                                     model@have_trend[i],1/model@output_weights[[i]],cm_obs_cur[[i]] );
+        record_par_individual[[i]][i_S,]=sigma_2_theta_m_sample  ##first par is the sigma_2
+      }else{
+        sigma_2_theta_m_sample=Sample_sigma_2_theta_m(c(theta_cur[model@index_theta[[i]]], 
+                                                        individual_par_cur[[i]]),L[[i]],
+                                                      model@output[[i]],
+                                                      length(model@index_theta[[i]]),
+                                                      model@p_x[i],model@X[[i]],
+                                                      model@have_trend[i],cm_obs_cur[[i]] );
+        
+        
+        individual_par_cur[[i]][ (model@p_x[i]+2):(model@p_x[i]+2+model@q[i]) ]=sigma_2_theta_m_sample
+        
+        post_cur[i]=Log_marginal_post(c(theta_cur[model@index_theta[[i]]], 
+                                        individual_par_cur[[i]]),L[[i]],
+                                      model@output[[i]],
+                                      length(model@index_theta[[i]]),
+                                      model@p_x[i],model@X[[i]],
+                                      model@have_trend[i],
+                                      model@prior_par[[i]][1:model@p_x[i]],
+                                      model@prior_par[[i]][model@p_x[i]+1],
+                                      model@prior_par[[i]][model@p_x[i]+2],
+                                      cm_obs_cur[[i]] );
+        
+        
+        
+        
+        #//sample xi and log_eta 
+        xi_sample=rep(0,model@p_x[i])
+        
+        for(i_x in 1: model@p_x[i]){
+          xi_sample[i_x]=individual_par_cur[[i]][i_x]+model@sd_proposal_cov_par[[i]][i_x]*rnorm(1);
+          #distribution_stan_norm(generator);
+        }
+        log_eta_sample=individual_par_cur[[i]][model@p_x[i]+1]+
+                       model@sd_proposal_cov_par[[i]][model@p_x[i]+1]*rnorm(1); 
+        
+        individual_par_propose=  individual_par_cur[[i]]
+        individual_par_propose[1:model@p_x[i]]=xi_sample
+        individual_par_propose[model@p_x[i]+1]=log_eta_sample
+        
+        
+        
+        if(model@discrepancy_type[i]=='GaSP'){
+          L_propose[[i]]=Get_R_new(exp(individual_par_propose[1:model@p_x[i]]),
+                                   exp(individual_par_propose[model@p_x[i]+1]),
+                           model@R0[[i]],model@kernel_type[i],model@alpha[[i]], 1/model@output_weights[[i]]);
+        }else if(model@discrepancy_type[i]=='S-GaSP'){
+          L_propose[[i]]=Get_R_z_new(exp(individual_par_propose[1:model@p_x[i]]),
+                                     exp(individual_par_propose[model@p_x[i]+1]),
+                             model@tilde_lambda[i],model@R0[[i]],model@kernel_type[i],
+                             model@alpha[[i]], 1/model@output_weights[[i]] );
+        }
+        
+        
+        post_propose[i]=Log_marginal_post(c(theta_cur[model@index_theta[[i]]], 
+                                            individual_par_propose),L_propose[[i]],
+                                      model@output[[i]],
+                                      length(model@index_theta[[i]]),
+                                      model@p_x[i],model@X[[i]],
+                                      model@have_trend[i],
+                                      model@prior_par[[i]][1:model@p_x[i]],
+                                      model@prior_par[[i]][model@p_x[i]+1],
+                                      model@prior_par[[i]][model@p_x[i]+2],
+                                      cm_obs_cur[[i]] );
+        
+
+        r_ratio=exp( post_propose[i]-post_cur[i]);
+        
+        decision=Accept_proposal(r_ratio);
+        
+        if(decision){
+          individual_par_cur[[i]]=individual_par_propose;
+          post_cur[i]=post_propose[i];
+          L[[i]]=L_propose[[i]];
+          accept_S_beta[i]=accept_S_beta[i]+1;
+        }
+        
+        record_par_individual[[i]][i_S,]=individual_par_cur[[i]]
+      }
+      
+    }
+      
+    ############################################################
+    #//sample theta
+    #theta_cur=par_cur[1:p_theta];
+    decision_0=F;
+    
+    
+
+    
+    for(i_theta in 1:model@p_theta){
+      theta_sample[i_theta]=rnorm(1,mean=theta_cur[i_theta],sd= (model@sd_proposal_theta[i_theta]*(model@theta_range[i_theta,2]- model@theta_range[i_theta,1]) ) )  ##here maybe truncated
+      #cat(theta_sample[i_theta],'\n')
+      #cat(theta_range[i_theta,2],'\n')
+      #cat(decision_0,'\n')
+      if((theta_sample[i_theta]>model@theta_range[i_theta,2])| (theta_sample[i_theta]<model@theta_range[i_theta,1]) ){
+        decision_0=T  ##reject directly
+        count_dec_record[i_S]=1
+        break;
+      }
+    }
+    
+    
+    #//if decision_0==true, then stay at original place
+    #//ow see whether we accept the sample
+    if(decision_0==F){
+      #theta_propose=theta_sample;
+      
+      for(i in 1:model@num_sources){
+        cm_obs_propose[[i]]=mathematical_model_eval(model@input[[i]],theta_sample[model@index_theta[[i]]],model@simul_type[i],emulator[[i]],math_model_MS[[i]]);
+
+        if(model@discrepancy_type[i]=='no-discrepancy'){
+          post_propose[i]=Log_marginal_post_no_discrepancy(c(theta_sample[model@index_theta[[i]]], 
+                                                         individual_par_cur[[i]]),model@output[[i]],length(model@index_theta[[i]]),
+                                                         model@X[[i]],
+                                                         model@have_trend[i],1/model@output_weights[[i]],cm_obs_propose[[i]] );
+        }else{
+          post_propose[i]=Log_marginal_post(c(theta_sample[model@index_theta[[i]]], 
+                                           individual_par_cur[[i]]),L[[i]],
+                                         model@output[[i]],
+                                         length(model@index_theta[[i]]),
+                                         model@p_x[i],model@X[[i]],
+                                         model@have_trend[i],
+                                         model@prior_par[[i]][1:model@p_x[i]],
+                                         model@prior_par[[i]][model@p_x[i]+1],
+                                         model@prior_par[[i]][model@p_x[i]+2],
+                                         cm_obs_propose[[i]] );
+          
+        }
+        
+
+      }
+      
+      
+      r_ratio=exp(sum(post_propose)-sum(post_cur));
+      decision=Accept_proposal(r_ratio);
+      if(decision){
+        
+        theta_cur=theta_sample;
+        post_cur=post_propose;
+        cm_obs_cur=cm_obs_propose;
+        accept_S_theta=accept_S_theta+1;
+        
+        #cat(par_cur,'\n')
+        
+      }
+      
+    }
+    
+    record_post[i_S,]=post_cur
+    
+    record_theta[i_S,]=theta_cur
+    
+    
+    
+    
+  }
+    
+  mylist$record_post=record_post
+    
+  mylist$record_theta=record_theta
+  
+  mylist$individual_par=record_par_individual
+  
+  mylist$accept_S_theta=accept_S_theta
+  mylist$accept_S_beta=accept_S_beta
+  mylist$count_dec_record=count_dec_record
+  
+  
+  cat('Done with posterior sampling \n')
+  cat(accept_S_theta, ' of ', model@S, ' proposed posterior samples of calibration parameters are accepted \n')
+  
+  for(i in 1:model@num_sources){
+    if(model@discrepancy_type[i]!='no-discrepancy'){
+       cat('For source', i,':', accept_S_beta[i], ' of ', model@S, 
+           ' proposed posterior samples of range and nugget parameters are accepted \n')
+    }
+  }
+  return(mylist)
+  
+}
+  
+  
+  
+  

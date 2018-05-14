@@ -15,7 +15,7 @@
 # Simulated example
 ####################
 
-library("RobustCalibration")
+library(RobustCalibration)
 
 #------------------------------------------------------------------------------
 # Example 1: # an example used in Susie Bayarri et. al. 2007 Technometrics paper
@@ -83,28 +83,28 @@ show(model_sgasp)
 testing_input=as.matrix(seq(0,6,0.01))
 
 
-prediction_no_discrepancy=predict.rcalibration(model_no_discrepancy,testing_input,
+prediction_no_discrepancy=predict(model_no_discrepancy,testing_input,
                                                math_model=math_model_eg1,
                                                interval_est=c(0.025,0.975),interval_data=TRUE)
 
-prediction_gasp=predict.rcalibration(model_gasp,testing_input,math_model=math_model_eg1,
+prediction_gasp=predict(model_gasp,testing_input,math_model=math_model_eg1,
                                      interval_est=c(0.025,0.975),interval_data=TRUE)
 
-prediction_sgasp=predict.rcalibration(model_sgasp,testing_input,math_model=math_model_eg1,
+prediction_sgasp=predict(model_sgasp,testing_input,math_model=math_model_eg1,
                                       interval_est=c(0.025,0.975),interval_data=TRUE)
 
 
 testing_output=test_funct_eg1(testing_input)
 ##the prediction by GaSP
 
-min_val=min(prediction_gasp$mean,prediction_gasp$interval,output,testing_output)
-max_val=max(prediction_gasp$mean,prediction_gasp$interval,output,testing_output)
+min_val=min(prediction_gasp@mean,prediction_gasp@interval,output,testing_output)
+max_val=max(prediction_gasp@mean,prediction_gasp@interval,output,testing_output)
 
-plot(testing_input,prediction_gasp$mean,type='l',col='red',xlab='x',ylab='y',ylim=c(min_val,max_val) )
-lines(testing_input,prediction_gasp$interval[,1],col='red',lty=2)
-lines(testing_input,prediction_gasp$interval[,2],col='red',lty=2)
+plot(testing_input,prediction_gasp@mean,type='l',col='red',xlab='x',ylab='y',ylim=c(min_val,max_val) )
+lines(testing_input,prediction_gasp@interval[,1],col='red',lty=2)
+lines(testing_input,prediction_gasp@interval[,2],col='red',lty=2)
 
-lines(testing_input,prediction_gasp$math_model_mean,col='red',lty=3)
+lines(testing_input,prediction_gasp@math_model_mean,col='red',lty=3)
 
 lines(input,output,type='p')
 
@@ -115,15 +115,15 @@ lines(testing_input,testing_output,type='l')
 
 
 ##the prediction by S-GaSP
-min_val=min(prediction_sgasp$mean,prediction_sgasp$interval,output,testing_output)
-max_val=max(prediction_sgasp$mean,prediction_sgasp$interval,output,testing_output)
+min_val=min(prediction_sgasp@mean,prediction_sgasp@interval,output,testing_output)
+max_val=max(prediction_sgasp@mean,prediction_sgasp@interval,output,testing_output)
 
-plot(testing_input,prediction_sgasp$mean,type='l',col='blue',xlab='x',ylab='y',ylim=c(min_val,max_val) )
-lines(testing_input,prediction_sgasp$interval[,1],col='blue',lty=2)
-lines(testing_input,prediction_sgasp$interval[,2],col='blue',lty=2)
+plot(testing_input,prediction_sgasp@mean,type='l',col='blue',xlab='x',ylab='y',ylim=c(min_val,max_val) )
+lines(testing_input,prediction_sgasp@interval[,1],col='blue',lty=2)
+lines(testing_input,prediction_sgasp@interval[,2],col='blue',lty=2)
 
 lines(input,output,type='p')
-lines(testing_input,prediction_sgasp$math_model_mean,col='blue',lty=3)
+lines(testing_input,prediction_sgasp@math_model_mean,col='blue',lty=3)
 
 lines(testing_input,testing_output,type='l')
 
@@ -132,27 +132,27 @@ legend("topright", legend=c("reality", "predictive mean","95 percent posterior c
 
 
 ## MSE if the math model and discrepancy are used for prediction
-mean((testing_output-prediction_gasp$mean)^2)
-mean((testing_output-prediction_sgasp$mean)^2)
+mean((testing_output-prediction_gasp@mean)^2)
+mean((testing_output-prediction_sgasp@mean)^2)
 
-mean((testing_output[301:601]-prediction_gasp$mean[301:601])^2)
-mean((testing_output[301:601]-prediction_sgasp$mean[301:601])^2)
+mean((testing_output[301:601]-prediction_gasp@mean[301:601])^2)
+mean((testing_output[301:601]-prediction_sgasp@mean[301:601])^2)
 
 ## MSE if the math model is used for prediction 
-mean((testing_output-prediction_gasp$math_model_mean)^2)
-mean((testing_output-prediction_sgasp$math_model_mean)^2)
+mean((testing_output-prediction_gasp@math_model_mean)^2)
+mean((testing_output-prediction_sgasp@math_model_mean)^2)
 
-mean((testing_output[301:601]-prediction_gasp$math_model_mean[301:601])^2)
-mean((testing_output[301:601]-prediction_sgasp$math_model_mean[301:601])^2)
+mean((testing_output[301:601]-prediction_gasp@math_model_mean[301:601])^2)
+mean((testing_output[301:601]-prediction_sgasp@math_model_mean[301:601])^2)
 
 ## Prediction if no discrepancy is assumed
 
-min_val=min(prediction_no_discrepancy$mean,prediction_no_discrepancy$interval,output,testing_output)
-max_val=max(prediction_no_discrepancy$mean,prediction_no_discrepancy$interval,output,testing_output)
+min_val=min(prediction_no_discrepancy@mean,prediction_no_discrepancy@interval,output,testing_output)
+max_val=max(prediction_no_discrepancy@mean,prediction_no_discrepancy@interval,output,testing_output)
 
-plot(testing_input,prediction_no_discrepancy$math_model_mean,type='l',col='green',xlab='x',ylab='y',ylim=c(min_val,max_val) )
-lines(testing_input,prediction_no_discrepancy$interval[,1],col='green',lty=2)
-lines(testing_input,prediction_no_discrepancy$interval[,2],col='green',lty=2)
+plot(testing_input,prediction_no_discrepancy@math_model_mean,type='l',col='green',xlab='x',ylab='y',ylim=c(min_val,max_val) )
+lines(testing_input,prediction_no_discrepancy@interval[,1],col='green',lty=2)
+lines(testing_input,prediction_no_discrepancy@interval[,2],col='green',lty=2)
 
 lines(input,output,type='p')
 
@@ -162,7 +162,7 @@ legend("topleft", legend=c("reality", "predictive mean of the math model","95 pe
        col=c("black", "green","green"), lty=c(1,1,2),cex=.6)
 
 ## MSE if no discrepancy is assumed
-mean((testing_output-prediction_no_discrepancy$math_model_mean)^2)
+mean((testing_output-prediction_no_discrepancy@math_model_mean)^2)
 
 
 ## in this example, adding a constant discrepancy parameter will make prediction better
@@ -230,13 +230,13 @@ show(model_sgasp_with_mean)
 testing_input=as.matrix(seq(0,6,0.01))
 
 
-prediction_no_discrepancy_with_mean=predict.rcalibration(model_no_discrepancy_with_mean,testing_input,X_testing=matrix(1,dim(testing_input)[1],1),
+prediction_no_discrepancy_with_mean=predict(model_no_discrepancy_with_mean,testing_input,X_testing=matrix(1,dim(testing_input)[1],1),
                                                math_model=math_model_eg1,interval_est=c(0.025,0.975),interval_data=TRUE)
 
-prediction_gasp_with_mean=predict.rcalibration(model_gasp_with_mean,testing_input,X_testing=matrix(1,dim(testing_input)[1],1),
+prediction_gasp_with_mean=predict(model_gasp_with_mean,testing_input,X_testing=matrix(1,dim(testing_input)[1],1),
                                                math_model=math_model_eg1,interval_est=c(0.025,0.975),interval_data=TRUE)
 
-prediction_sgasp_with_mean=predict.rcalibration(model_sgasp_with_mean,testing_input,X_testing=matrix(1,dim(testing_input)[1],1),
+prediction_sgasp_with_mean=predict(model_sgasp_with_mean,testing_input,X_testing=matrix(1,dim(testing_input)[1],1),
                                                 math_model=math_model_eg1, interval_est=c(0.025,0.975),interval_data=TRUE)
 
 
@@ -245,14 +245,14 @@ testing_output=test_funct_eg1(testing_input)
 
 ##the prediction by GaSP
 
-min_val=min(prediction_gasp_with_mean$mean,prediction_gasp_with_mean$interval,output,testing_output)
-max_val=max(prediction_gasp_with_mean$mean,prediction_gasp_with_mean$interval,output,testing_output)
+min_val=min(prediction_gasp_with_mean@mean,prediction_gasp_with_mean@interval,output,testing_output)
+max_val=max(prediction_gasp_with_mean@mean,prediction_gasp_with_mean@interval,output,testing_output)
 
-plot(testing_input,prediction_gasp_with_mean$mean,type='l',col='red',xlab='x',ylab='y',ylim=c(min_val,max_val) )
-lines(testing_input,prediction_gasp_with_mean$interval[,1],col='red',lty=2)
-lines(testing_input,prediction_gasp_with_mean$interval[,2],col='red',lty=2)
+plot(testing_input,prediction_gasp_with_mean@mean,type='l',col='red',xlab='x',ylab='y',ylim=c(min_val,max_val) )
+lines(testing_input,prediction_gasp_with_mean@interval[,1],col='red',lty=2)
+lines(testing_input,prediction_gasp_with_mean@interval[,2],col='red',lty=2)
 
-lines(testing_input,prediction_gasp_with_mean$math_model_mean,col='red',lty=3)
+lines(testing_input,prediction_gasp_with_mean@math_model_mean,col='red',lty=3)
 
 lines(input,output,type='p')
 
@@ -263,15 +263,15 @@ lines(testing_input,testing_output,type='l')
 
 
 ##the prediction by S-GaSP
-min_val=min(prediction_sgasp_with_mean$mean,prediction_sgasp_with_mean$interval,output,testing_output)
-max_val=max(prediction_sgasp_with_mean$mean,prediction_sgasp_with_mean$interval,output,testing_output)
+min_val=min(prediction_sgasp_with_mean@mean,prediction_sgasp_with_mean@interval,output,testing_output)
+max_val=max(prediction_sgasp_with_mean@mean,prediction_sgasp_with_mean@interval,output,testing_output)
 
-plot(testing_input,prediction_sgasp_with_mean$mean,type='l',col='blue',xlab='x',ylab='y',ylim=c(min_val,max_val) )
-lines(testing_input,prediction_sgasp_with_mean$interval[,1],col='blue',lty=2)
-lines(testing_input,prediction_sgasp_with_mean$interval[,2],col='blue',lty=2)
+plot(testing_input,prediction_sgasp_with_mean@mean,type='l',col='blue',xlab='x',ylab='y',ylim=c(min_val,max_val) )
+lines(testing_input,prediction_sgasp_with_mean@interval[,1],col='blue',lty=2)
+lines(testing_input,prediction_sgasp_with_mean@interval[,2],col='blue',lty=2)
 
 lines(input,output,type='p')
-lines(testing_input,prediction_sgasp_with_mean$math_model_mean,col='blue',lty=3)
+lines(testing_input,prediction_sgasp_with_mean@math_model_mean,col='blue',lty=3)
 
 lines(testing_input,testing_output,type='l')
 
@@ -280,27 +280,27 @@ legend("topright", legend=c("reality", "predictive mean","95 percent posterior c
 
 
 ## MSE if the math model and discrepancy are used for prediction
-mean((testing_output-prediction_gasp_with_mean$mean)^2)
-mean((testing_output-prediction_sgasp_with_mean$mean)^2)
+mean((testing_output-prediction_gasp_with_mean@mean)^2)
+mean((testing_output-prediction_sgasp_with_mean@mean)^2)
 
-mean((testing_output[301:601]-prediction_gasp_with_mean$mean[301:601])^2)
-mean((testing_output[301:601]-prediction_sgasp_with_mean$mean[301:601])^2)
+mean((testing_output[301:601]-prediction_gasp_with_mean@mean[301:601])^2)
+mean((testing_output[301:601]-prediction_sgasp_with_mean@mean[301:601])^2)
 
 ## MSE if the math model is used for prediction 
-mean((testing_output-prediction_gasp_with_mean$math_model_mean)^2)
-mean((testing_output-prediction_sgasp_with_mean$math_model_mean)^2)
+mean((testing_output-prediction_gasp_with_mean@math_model_mean)^2)
+mean((testing_output-prediction_sgasp_with_mean@math_model_mean)^2)
 
-mean((testing_output[301:601]-prediction_gasp_with_mean$math_model_mean[301:601])^2)
-mean((testing_output[301:601]-prediction_sgasp_with_mean$math_model_mean[301:601])^2)
+mean((testing_output[301:601]-prediction_gasp_with_mean@math_model_mean[301:601])^2)
+mean((testing_output[301:601]-prediction_sgasp_with_mean@math_model_mean[301:601])^2)
 
 ## Prediction if no discrepancy is assumed
 
-min_val=min(prediction_no_discrepancy_with_mean$math_model_mean,prediction_no_discrepancy_with_mean$interval,output,testing_output)
-max_val=max(prediction_no_discrepancy_with_mean$math_model_mean,prediction_no_discrepancy_with_mean$interval,output,testing_output)
+min_val=min(prediction_no_discrepancy_with_mean@math_model_mean,prediction_no_discrepancy_with_mean@interval,output,testing_output)
+max_val=max(prediction_no_discrepancy_with_mean@math_model_mean,prediction_no_discrepancy_with_mean@interval,output,testing_output)
 
-plot(testing_input,prediction_no_discrepancy_with_mean$math_model_mean,type='l',col='green',xlab='x',ylab='y',ylim=c(min_val,max_val) )
-lines(testing_input,prediction_no_discrepancy_with_mean$interval[,1],col='green',lty=2)
-lines(testing_input,prediction_no_discrepancy_with_mean$interval[,2],col='green',lty=2)
+plot(testing_input,prediction_no_discrepancy_with_mean@math_model_mean,type='l',col='green',xlab='x',ylab='y',ylim=c(min_val,max_val) )
+lines(testing_input,prediction_no_discrepancy_with_mean@interval[,1],col='green',lty=2)
+lines(testing_input,prediction_no_discrepancy_with_mean@interval[,2],col='green',lty=2)
 
 lines(input,output,type='p')
 
@@ -310,7 +310,7 @@ legend("topleft", legend=c("reality", "predictive mean of the math model","95 pe
        col=c("black", "green","green"), lty=c(1,1,2),cex=.6)
 
 ## MSE if no discrepancy is assumed
-mean((testing_output-prediction_no_discrepancy_with_mean$math_model_mean)^2)
+mean((testing_output-prediction_no_discrepancy_with_mean@math_model_mean)^2)
 
 
 #-------------------------------------------------------------
@@ -350,9 +350,12 @@ for(j in 1:n_stack){
 output_stack=as.matrix(output_stack)
 input_stack=as.matrix(input_stack)
 
-n_design=40
+n_design=80
   
 design_simul=matrix(runif(n_design*2),n_design,2)
+#library(lhs)
+#design_simul=maximinLHS(n=n_design,k=2)
+
 design_simul[,1]=6*design_simul[,1]   ##the first one is the observed input x
 design_simul[,2]=10*design_simul[,2]   ##the second one is the calibration parameter \theta
 
@@ -374,13 +377,13 @@ model_sgasp_with_mean_emulator=rcalibration(design=input_stack, observations=out
                                    discrepancy_type='S-GaSP')
 
 
-plot(model_no_discrepancy_with_mean_emulator$model@post_sample[,1],type='l',xlab='num',ylab=expression(theta))   
-plot(model_gasp_with_mean_emulator$model@post_sample[,1],type='l',xlab='num',ylab=expression(theta))   
-plot(model_sgasp_with_mean_emulator$model@post_sample[,1],type='l',xlab='num',ylab=expression(theta))   
+plot(model_no_discrepancy_with_mean_emulator@post_sample[,1],type='l',xlab='num',ylab=expression(theta))   
+plot(model_gasp_with_mean_emulator@post_sample[,1],type='l',xlab='num',ylab=expression(theta))   
+plot(model_sgasp_with_mean_emulator@post_sample[,1],type='l',xlab='num',ylab=expression(theta))   
 
-show(model_no_discrepancy_with_mean)
-show(model_gasp_with_mean)
-show(model_sgasp_with_mean)
+show(model_no_discrepancy_with_mean_emulator)
+show(model_gasp_with_mean_emulator)
+show(model_sgasp_with_mean_emulator)
 
 
 
@@ -389,14 +392,13 @@ show(model_sgasp_with_mean)
 testing_input=as.matrix(seq(0,6,0.03))
 
 
-prediction_no_discrepancy_with_mean_emulator=predict.rcalibration(model_no_discrepancy_with_mean_emulator$model,testing_input,X_testing=matrix(1,dim(testing_input)[1],1),
-                                                     emulator=model_no_discrepancy_with_mean_emulator$emulator)
+prediction_no_discrepancy_with_mean_emulator=predict(model_no_discrepancy_with_mean_emulator,testing_input,X_testing=matrix(1,dim(testing_input)[1],1))
 
-prediction_gasp_with_mean_emulator=predict.rcalibration(model_gasp_with_mean_emulator$model,testing_input,X_testing=matrix(1,dim(testing_input)[1],1),
-                                                interval_est=c(0.025,0.975),interval_data=TRUE,emulator=model_gasp_with_mean_emulator$emulator)
+prediction_gasp_with_mean_emulator=predict(model_gasp_with_mean_emulator,testing_input,X_testing=matrix(1,dim(testing_input)[1],1),
+                                                interval_est=c(0.025,0.975),interval_data=TRUE)
 
-prediction_sgasp_with_mean_emulator=predict.rcalibration(model_sgasp_with_mean_emulator$model,testing_input,X_testing=matrix(1,dim(testing_input)[1],1),
-                                                interval_est=c(0.025,0.975),interval_data=TRUE,emulator=model_sgasp_with_mean_emulator$emulator)
+prediction_sgasp_with_mean_emulator=predict(model_sgasp_with_mean_emulator,testing_input,X_testing=matrix(1,dim(testing_input)[1],1),
+                                                interval_est=c(0.025,0.975),interval_data=TRUE)
 
 
 testing_output=test_funct_eg1(testing_input)
@@ -405,14 +407,14 @@ testing_output=test_funct_eg1(testing_input)
 
 ##the prediction by GaSP
 
-min_val=min(prediction_gasp_with_mean_emulator$mean,prediction_gasp_with_mean_emulator$interval,output,testing_output)
-max_val=max(prediction_gasp_with_mean_emulator$mean,prediction_gasp_with_mean_emulator$interval,output,testing_output)
+min_val=min(prediction_gasp_with_mean_emulator@mean,prediction_gasp_with_mean_emulator@interval,output,testing_output)
+max_val=max(prediction_gasp_with_mean_emulator@mean,prediction_gasp_with_mean_emulator@interval,output,testing_output)
 
-plot(testing_input,prediction_gasp_with_mean_emulator$mean,type='l',col='red',xlab='x',ylab='y',ylim=c(min_val,max_val) )
-lines(testing_input,prediction_gasp_with_mean_emulator$interval[,1],col='red',lty=2)
-lines(testing_input,prediction_gasp_with_mean_emulator$interval[,2],col='red',lty=2)
+plot(testing_input,prediction_gasp_with_mean_emulator@mean,type='l',col='red',xlab='x',ylab='y',ylim=c(min_val,max_val) )
+lines(testing_input,prediction_gasp_with_mean_emulator@interval[,1],col='red',lty=2)
+lines(testing_input,prediction_gasp_with_mean_emulator@interval[,2],col='red',lty=2)
 
-lines(testing_input,prediction_gasp_with_mean_emulator$math_model_mean,col='red',lty=3)
+lines(testing_input,prediction_gasp_with_mean_emulator@math_model_mean,col='red',lty=3)
 
 lines(input,output,type='p')
 
@@ -423,15 +425,15 @@ lines(testing_input,testing_output,type='l')
 
 
 ##the prediction by S-GaSP
-min_val=min(prediction_sgasp_with_mean_emulator$mean,prediction_sgasp_with_mean_emulator$interval,output,testing_output)
-max_val=max(prediction_sgasp_with_mean_emulator$mean,prediction_sgasp_with_mean_emulator$interval,output,testing_output)
+min_val=min(prediction_sgasp_with_mean_emulator@mean,prediction_sgasp_with_mean_emulator@interval,output,testing_output)
+max_val=max(prediction_sgasp_with_mean_emulator@mean,prediction_sgasp_with_mean_emulator@interval,output,testing_output)
 
-plot(testing_input,prediction_sgasp_with_mean_emulator$mean,type='l',col='blue',xlab='x',ylab='y',ylim=c(min_val,max_val) )
-lines(testing_input,prediction_sgasp_with_mean_emulator$interval[,1],col='blue',lty=2)
-lines(testing_input,prediction_sgasp_with_mean_emulator$interval[,2],col='blue',lty=2)
+plot(testing_input,prediction_sgasp_with_mean_emulator@mean,type='l',col='blue',xlab='x',ylab='y',ylim=c(min_val,max_val) )
+lines(testing_input,prediction_sgasp_with_mean_emulator@interval[,1],col='blue',lty=2)
+lines(testing_input,prediction_sgasp_with_mean_emulator@interval[,2],col='blue',lty=2)
 
 lines(input,output,type='p')
-lines(testing_input,prediction_sgasp_with_mean_emulator$math_model_mean,col='blue',lty=3)
+lines(testing_input,prediction_sgasp_with_mean_emulator@math_model_mean,col='blue',lty=3)
 
 lines(testing_input,testing_output,type='l')
 
@@ -440,18 +442,18 @@ legend("topright", legend=c("reality", "predictive mean","95 percent posterior c
 
 
 ## MSE if the math model and discrepancy are used for prediction
-mean((testing_output-prediction_gasp_with_mean_emulator$mean)^2)
-mean((testing_output-prediction_sgasp_with_mean_emulator$mean)^2)
+mean((testing_output-prediction_gasp_with_mean_emulator@mean)^2)
+mean((testing_output-prediction_sgasp_with_mean_emulator@mean)^2)
 
-mean((testing_output[101:201]-prediction_gasp_with_mean_emulator$mean[101:201])^2)
-mean((testing_output[101:201]-prediction_sgasp_with_mean_emulator$mean[101:201])^2)
+mean((testing_output[101:201]-prediction_gasp_with_mean_emulator@mean[101:201])^2)
+mean((testing_output[101:201]-prediction_sgasp_with_mean_emulator@mean[101:201])^2)
 
 ## MSE if the math model is used for prediction 
-mean((testing_output-prediction_gasp_with_mean_emulator$math_model_mean)^2)
-mean((testing_output-prediction_sgasp_with_mean_emulator$math_model_mean)^2)
+mean((testing_output-prediction_gasp_with_mean_emulator@math_model_mean)^2)
+mean((testing_output-prediction_sgasp_with_mean_emulator@math_model_mean)^2)
 
-mean((testing_output[101:201]-prediction_gasp_with_mean_emulator$math_model_mean[101:201])^2)
-mean((testing_output[101:201]-prediction_sgasp_with_mean_emulator$math_model_mean[101:201])^2)
+mean((testing_output[101:201]-prediction_gasp_with_mean_emulator@math_model_mean[101:201])^2)
+mean((testing_output[101:201]-prediction_sgasp_with_mean_emulator@math_model_mean[101:201])^2)
 
 #-------------------------------------------------------------
 # Example 4: an example with multiple local maximum of minimum in L2 loss
@@ -471,7 +473,7 @@ input=seq(0,5,5/(n-1))
 
 input=as.matrix(input)
 
-output=test_funct_eg2(input)+rnorm(length(input),mean=0,sd=0.1)
+output=test_funct_eg2(input)+rnorm(length(input),mean=0,sd=0.05)
 
 num_obs=n=length(output)
 
@@ -506,25 +508,25 @@ show(model_sgasp)
 ## test data set
 testing_input=as.matrix(seq(0,5,0.01))
 
-prediction_no_discrepancy=predict.rcalibration(model_no_discrepancy,testing_input,math_model=math_model_eg2,interval_est=c(0.025,0.975),interval_data=TRUE)
+prediction_no_discrepancy=predict(model_no_discrepancy,testing_input,math_model=math_model_eg2,interval_est=c(0.025,0.975),interval_data=TRUE)
 
-prediction_gasp=predict.rcalibration(model_gasp,testing_input,math_model=math_model_eg2,
+prediction_gasp=predict(model_gasp,testing_input,math_model=math_model_eg2,
                                      interval_est=c(0.025,0.975),interval_data=TRUE)
 
-prediction_sgasp=predict.rcalibration(model_sgasp,testing_input,math_model=math_model_eg2,
+prediction_sgasp=predict(model_sgasp,testing_input,math_model=math_model_eg2,
                                       interval_est=c(0.025,0.975),interval_data=TRUE)
 
 testing_output=test_funct_eg2(testing_input)
 ##the prediction by GaSP
 
-min_val=min(prediction_gasp$mean,prediction_gasp$interval,output,testing_output)
-max_val=max(prediction_gasp$mean,prediction_gasp$interval,output,testing_output)
+min_val=min(prediction_gasp@mean,prediction_gasp@interval,output,testing_output)
+max_val=max(prediction_gasp@mean,prediction_gasp@interval,output,testing_output)
 
-plot(testing_input,prediction_gasp$mean,type='l',col='red',xlab='x',ylab='y',ylim=c(min_val,max_val) )
-lines(testing_input,prediction_gasp$interval[,1],col='red',lty=2)
-lines(testing_input,prediction_gasp$interval[,2],col='red',lty=2)
+plot(testing_input,prediction_gasp@mean,type='l',col='red',xlab='x',ylab='y',ylim=c(min_val,max_val) )
+lines(testing_input,prediction_gasp@interval[,1],col='red',lty=2)
+lines(testing_input,prediction_gasp@interval[,2],col='red',lty=2)
 
-lines(testing_input,prediction_gasp$math_model_mean,col='red',lty=3)
+lines(testing_input,prediction_gasp@math_model_mean,col='red',lty=3)
 
 lines(input,output,type='p')
 
@@ -536,15 +538,15 @@ lines(testing_input,testing_output,type='l')
 ##the prediction by S-GaSP
 testing_output=test_funct_eg2(testing_input)
 
-min_val=min(prediction_sgasp$mean,prediction_sgasp$interval,output,testing_output)
-max_val=max(prediction_sgasp$mean,prediction_sgasp$interval,output,testing_output)
+min_val=min(prediction_sgasp@mean,prediction_sgasp@interval,output,testing_output)
+max_val=max(prediction_sgasp@mean,prediction_sgasp@interval,output,testing_output)
 
-plot(testing_input,prediction_sgasp$mean,type='l',col='blue',xlab='x',ylab='y',ylim=c(min_val,max_val) )
-lines(testing_input,prediction_sgasp$interval[,1],col='blue',lty=2)
-lines(testing_input,prediction_sgasp$interval[,2],col='blue',lty=2)
+plot(testing_input,prediction_sgasp@mean,type='l',col='blue',xlab='x',ylab='y',ylim=c(min_val,max_val) )
+lines(testing_input,prediction_sgasp@interval[,1],col='blue',lty=2)
+lines(testing_input,prediction_sgasp@interval[,2],col='blue',lty=2)
 
 lines(input,output,type='p')
-lines(testing_input,prediction_sgasp$math_model_mean,col='blue',lty=3)
+lines(testing_input,prediction_sgasp@math_model_mean,col='blue',lty=3)
 
 lines(testing_input,testing_output,type='l')
 
@@ -553,22 +555,22 @@ legend("topleft", legend=c("reality", "predictive mean","95 percent posterior cr
 
 
 ## MSE if the math model and discrepancy are used for prediction
-mean((testing_output-prediction_gasp$mean)^2)
-mean((testing_output-prediction_sgasp$mean)^2)
+mean((testing_output-prediction_gasp@mean)^2)
+mean((testing_output-prediction_sgasp@mean)^2)
 
 ## MSE if the math model is used for prediction 
-mean((testing_output-prediction_gasp$math_model_mean)^2)
-mean((testing_output-prediction_sgasp$math_model_mean)^2)
+mean((testing_output-prediction_gasp@math_model_mean)^2)
+mean((testing_output-prediction_sgasp@math_model_mean)^2)
 
 
 ## Prediction if no discrepancy is assumed
 
-min_val=min(prediction_no_discrepancy$mean,prediction_no_discrepancy$interval,output,testing_output)
-max_val=max(prediction_no_discrepancy$mean,prediction_no_discrepancy$interval,output,testing_output)
+min_val=min(prediction_no_discrepancy@mean,prediction_no_discrepancy@interval,output,testing_output)
+max_val=max(prediction_no_discrepancy@mean,prediction_no_discrepancy@interval,output,testing_output)
 
-plot(testing_input,prediction_no_discrepancy$math_model_mean,type='l',col='green',xlab='x',ylab='y',ylim=c(min_val,max_val) )
-lines(testing_input,prediction_no_discrepancy$interval[,1],col='green',lty=2)
-lines(testing_input,prediction_no_discrepancy$interval[,2],col='green',lty=2)
+plot(testing_input,prediction_no_discrepancy@math_model_mean,type='l',col='green',xlab='x',ylab='y',ylim=c(min_val,max_val) )
+lines(testing_input,prediction_no_discrepancy@interval[,1],col='green',lty=2)
+lines(testing_input,prediction_no_discrepancy@interval[,2],col='green',lty=2)
 
 lines(input,output,type='p')
 
@@ -578,5 +580,5 @@ legend("topleft", legend=c("reality", "predictive mean of the math model","95 pe
        col=c("black", "green","green"), lty=c(1,1,2),cex=.6)
 
 ## MSE if no discrepancy is assumed
-mean((testing_output-prediction_no_discrepancy$math_model_mean)^2)
+mean((testing_output-prediction_no_discrepancy@math_model_mean)^2)
 

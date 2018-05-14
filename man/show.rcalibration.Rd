@@ -30,7 +30,10 @@ A. O'Hagan and M. C. Kennedy (2001), \emph{Bayesian calibration of computer mode
 
 M. Gu (2016), \emph{Robust Uncertainty Quantification and Scalable Computation for Computer Models with Massive Output}, Ph.D. thesis., Duke University.
 
-M. Gu and L. Wang (2017) \emph{An improved approach to Bayesian computer model calibration and prediction}. arXiv preprint arXiv:1707.08215.
+M. Gu and L. Wang (2017) \emph{Scaled Gaussian Stochastic Process for Computer Model Calibration and Prediction}. arXiv preprint arXiv:1707.08215.
+
+M. Gu (2018) \emph{Jointly Robust Prior for Gaussian Stochastic Process in Emulation, Calibration and Variable Selection
+}. arXiv preprint arXiv:1804.09329.
 
 }
 
@@ -53,7 +56,7 @@ test_funct_eg1<-function(x){
 
 
 
-## obtain 25 data from the reality plus a noise
+## obtain 15 data from the reality plus a noise
 set.seed(1)
 ## 10 data points are very small, one may want to add more data
 n=15
@@ -104,13 +107,13 @@ test_funct_eg1<-function(x){
 
 
 
-## obtain 25 data from the reality plus a noise
+## obtain 15 data from the reality plus a noise
 set.seed(1)
-n=20
+n=15
 input=seq(0,5,5/(n-1))
 input=as.matrix(input)
 
-output=test_funct_eg1(input)+rnorm(length(input),mean=0,sd=0.1)
+output=test_funct_eg1(input)+rnorm(length(input),mean=0,sd=0.05)
 
 num_obs=n=length(output)
 

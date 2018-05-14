@@ -33,23 +33,18 @@ setClass("rcalibration",
            post_sample="matrix",    ## posterior samples after burn-in
            post_value="vector",             ## posterior value after burn-in after burn-in
            accept_S="vector",                ## number of proposed samples of the calibation parameters are accepted
-           count_boundary="numeric"          ## number of proposed samples is outside the boundary of calibration parameters
+           count_boundary="numeric",          ## number of proposed samples is outside the boundary of calibration parameters
+           emulator="rgasp"             ## an S4 class called rgasp from RobustGaSP
+           
          ), 
-         # validity = function(object) {
-         #   if (object@num_obs <= object@p) {
-         #     return("the number of experiments must be larger than the spatial dimension")
-         #   }
-         #   
-         #   if (ncol(object@output) != 1) {
-         #     return("the response must have one dimension")
-         #   }
-         #   
-         #   if (!identical(nrow(object@input), nrow(object@output))) {
-         #     return("the number of observations is not equal to the number of experiments")
-         #   }
-         #   
-         #   TRUE
-         # }
+)
+
+setClass("predictobj.rcalibration", representation(
+  mean = "vector",
+  math_model_mean = "vector",
+  math_model_mean_no_trend = "vector",
+  interval = "matrix"
+),
 )
 
 # 
@@ -64,7 +59,8 @@ setMethod("show", "rcalibration",
             show.rcalibration(object)
           }
 )
-# 
+
+
 if(!isGeneric("predict")) {
   setGeneric(name = "predict",
              def = function(object, ...) standardGeneric("predict")
@@ -73,28 +69,79 @@ if(!isGeneric("predict")) {
 
 setMethod("predict", "rcalibration",
           definition=function(object, testing_input,X_testing=matrix(0,dim(testing_input)[1],1),
-                              n_thinning=10, testing_output_weights=rep(1,dim(testing_input)[1]), 
-                              interval_est=NULL,interval_data=F, emulator=NULL,math_model=NULL,...){
+                              n_thinning=10, testing_output_weights=rep(1,dim(testing_input)[1]),
+                              interval_est=NULL,interval_data=F,math_model=NULL,...){
             predict.rcalibration(object = object, testing_input = testing_input, X_testing=X_testing,
-                          n_thinning=n_thinning, testing_output_weights=testing_output_weights, 
-                          interval_est=interval_est,interval_data=interval_data, emulator=emulator,math_model=math_model,...)
+                                 n_thinning=n_thinning, testing_output_weights=testing_output_weights,
+                                 interval_est=interval_est,interval_data=interval_data,math_model=math_model,...)
           }
 )
 
-# 
-# 
-# 
-# if(!isGeneric("Sample")) {
-#   setGeneric(name = "Sample",
-#              def = function(object, ...) standardGeneric("Sample")
-#   )
-# }
-# 
-# setMethod("Sample", "rgasp",
-#           definition=function(object, testing_input, num_sample=1,testing_trend=matrix(1,dim(testing_input)[1],1), ...) {
-#             Sample.rgasp(object = object, testing_input = testing_input, num_sample=num_sample,
-#                           testing_trend=testing_trend , ...)
-#           }
-# )
+
+
+
+setClass("rcalibration_MS", 		
+         representation( 
+           num_sources="integer",    ## number of sources 
+           p_x = "vector",          ## dimension of the inputs
+           p_theta="integer",        ## dimention of the calibration parameters
+           num_obs = "vector",          ## experimental observations number
+           index_theta='list',         ##index of theta shared at each source. 
+                                     ##the default is that theta is shared  for each sources
+           ## data
+           input = "list",           ## the design of experiments, size n x p_x
+           output = "list",           ## the experimental observations, size n x 1
+           X="list",                  ## mean basis for experiment, size n x q
+           have_trend="vector",         ## have mean or no
+           q="vector",                 ## number of mean basis for experiment
+           R0="list",                    ##abs difference of each type of input
+           kernel_type="vector",       #####type of kernel to specify
+           alpha="list",              ####roughness parameter in the kernel, only useful for pow_exp
+           theta_range= "matrix",        ## the range of calibration parameters
+           tilde_lambda="vector",        ## parameter in the S-GaSP
+           S="integer",                   ## number of MCMC
+           S_0="integer",                 ## number of burn-in
+           prior_par="list",            ## prior parameters for jointly robust prior
+           output_weights="list",       ##whether the output contains weights
+           sd_proposal_theta="vector",            ##standard deviation of theta in MCMC
+           sd_proposal_cov_par="list",            ##standard deviation of the covariance par in MCMC
+           discrepancy_type="vector",    ## no-discrepancy,  GaSP and  S-GaSP
+           simul_type="vector",          ## 0 means use RobustGaSP pacakge to fit the computer model, 
+           emulator="list",             ## emulators from RobustGaSP
+           post_theta="matrix",    ## posterior samples of calibration after burn-in
+           post_individual_par="list",   ## posterior sample of the covariance parameters, noise, and trend
+           post_value="matrix",             ## posterior value after burn-in after burn-in
+           accept_S_theta="numeric",                ## number of proposed samples of the calibation parameters are accepted
+           accept_S_beta="vector",                ## number of proposed samples of the calibation parameters are accepted
+           count_boundary="numeric"          ## number of proposed samples is outside the boundary of calibration parameters
+         ), 
+)
+
+
+if(!isGeneric("predict_MS")) {
+  setGeneric(name = "predict_MS",
+             def = function(object, ...) standardGeneric("predict_MS")
+  )
+}
+
+setMethod("predict_MS", "rcalibration_MS",
+          definition=function(object, testing_input, X_testing=as.list(rep(0,object@num_sources)),
+                              n_thinning=10, testing_output_weights=NULL, 
+                              interval_est=NULL,interval_data=rep(F,length(testing_input)),
+                              math_model=NULL,...){
+            predict_MS.rcalibration_MS(object=object, testing_input=testing_input, X_testing=X_testing,
+                                    n_thinning=n_thinning, testing_output_weights=testing_output_weights, 
+                                    interval_est=interval_est,interval_data=rep(F,length(testing_input)),
+                                    math_model=math_model,...)
+          }
+)
+
+setClass("predictobj.rcalibration_MS", representation(
+  mean = "list",
+  math_model_mean = "list",
+  math_model_mean_no_trend = "list",
+  interval = "list"
+),
+)
 
 

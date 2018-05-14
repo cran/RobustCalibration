@@ -44,10 +44,6 @@ K. R. Anderson and M. P. Poland (2016), \emph{Bayesian estimation of magma suppl
 K. R. Anderson and M. P. Poland (2017), \emph{Abundant carbon in the mantle beneath Hawaii}. \emph{Nature Geoscience}, \bold{10}, 704-708.
 
 
-M. Gu (2016), \emph{Robust Uncertainty Quantification and Scalable Computation for Computer Models with Massive Output}, Ph.D. thesis., Duke University.
-
-M. Gu and L. Wang (2017) \emph{An improved approach to Bayesian computer model calibration and prediction}. arXiv preprint arXiv:1707.08215.
-
 }
 \author{
 %%  ~~who you are~~

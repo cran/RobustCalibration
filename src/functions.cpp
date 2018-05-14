@@ -36,7 +36,9 @@ Eigen::VectorXd Mogihammer ( const MatrixXd obsCoords, const VectorXd m, int sim
   Vector3d lookvec2(0.650447484, -0.119379453, 0.75011107);
 
   
-  m_rev(3)=m_rev(3)*17971200.0;
+  // m_rev(3)=m_rev(3)*17971200.0;
+  //m_rev(3)=m_rev(3)*8600400.0;
+  m_rev(3)=m_rev(3)*31557600.0;
 
   int nObs=obsCoords.rows(); 
   Eigen::VectorXd dx=obsCoords.col(0)-MatrixXd::Constant(nObs,1,m_rev(0));
@@ -396,9 +398,13 @@ Eigen::VectorXd Sample_sigma_2_theta_m_no_discrepancy(const Eigen::VectorXd  par
   //if needed, generate theta_m
   if(have_mean){
     //area size
-    MatrixXd mat=  inv_output_weights.asDiagonal();
+    MatrixXd Ones=MatrixXd::Constant(1,num_obs,1.0);
+    
+    MatrixXd mat=  (Ones.array()/inv_output_weights.array()).matrix().asDiagonal();
+    
+    //MatrixXd mat=  inv_output_weights.asDiagonal();
 
-    MatrixXd Xt_X=X.transpose()*mat*X;
+    MatrixXd Xt_X=X.transpose()*mat*X;  
       
 
     LLT<MatrixXd> lltOfXt_X(Xt_X);            

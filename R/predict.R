@@ -3,14 +3,16 @@
 
 predict.rcalibration<-function(object, testing_input, X_testing=matrix(0,dim(testing_input)[1],1),
                                n_thinning=10, testing_output_weights=rep(1,dim(testing_input)[1]), 
-                               interval_est=NULL,interval_data=F, emulator=NULL,math_model=NULL,...){
+                               interval_est=NULL,interval_data=F,math_model=NULL,...){
+  predictobj<- new("predictobj.rcalibration")
+  record_cm_pred=0
+  record_cm_pred_no_trend=0
+  
   if(object@discrepancy_type=='no-discrepancy'){
     if(!is.null(interval_est)){
       record_interval=matrix(0,dim(testing_input)[1],length(interval_est));
     }
     SS=floor(dim(object@post_sample)[1]/n_thinning)
-    record_cm_pred=0
-
     c_prop=1/4
     
     for(i_S in (1: SS)*n_thinning ){
@@ -26,8 +28,8 @@ predict.rcalibration<-function(object, testing_input, X_testing=matrix(0,dim(tes
       theta=object@post_sample[i_S,1:object@p_theta]
       sigma_2_delta=object@post_sample[i_S,object@p_theta+1]
 
-      mean_cm_test=mathematical_model_eval(testing_input,theta,object@simul_type,emulator,math_model);
-      
+      mean_cm_test=mathematical_model_eval(testing_input,theta,object@simul_type,object@emulator,math_model);
+      mean_cm_test_no_trend=mean_cm_test
       if(object@have_trend){
         theta_m=object@post_sample[i_S,(object@p_theta+2):(object@p_theta+1+object@q)]
         mean_cm_test=mean_cm_test+X_testing%*%theta_m
@@ -35,6 +37,8 @@ predict.rcalibration<-function(object, testing_input, X_testing=matrix(0,dim(tes
       
       
       record_cm_pred=record_cm_pred+mean_cm_test
+      
+      record_cm_pred_no_trend=record_cm_pred_no_trend+mean_cm_test_no_trend
       if(!is.null(interval_est)){
         qnorm_all=qnorm(interval_est);
         for(i_int in 1:length(interval_est) ){
@@ -44,18 +48,22 @@ predict.rcalibration<-function(object, testing_input, X_testing=matrix(0,dim(tes
       
     }
     record_cm_pred=record_cm_pred/SS
-    
-    output.list <- list()
-    
-    output.list$math_model_mean=record_cm_pred
+    record_cm_pred_no_trend=record_cm_pred_no_trend/SS
+    #output.list <- list()
   
+    #output.list$math_model_mean=record_cm_pred
+    
+    predictobj@math_model_mean=record_cm_pred
+    predictobj@math_model_mean_no_trend=record_cm_pred_no_trend
+    
     if(!is.null(interval_est)){
       record_interval=record_interval/SS
-      output.list$interval=record_interval
+      #output.list$interval=record_interval
+      predictobj@interval=record_interval
       #ans.list[[2]]=record_interval
     }
     
-    return(output.list)
+    return(predictobj)
     
   }else{
   if(!is.null(interval_est)){
@@ -69,7 +77,6 @@ predict.rcalibration<-function(object, testing_input, X_testing=matrix(0,dim(tes
     r0[[i]]=abs(outer(object@input[,i],testing_input[,i],'-'))
   }
   
-  record_cm_pred=0
   record_pred_mean=0
   
   SS=floor(dim(object@post_sample)[1]/n_thinning)
@@ -91,7 +98,7 @@ predict.rcalibration<-function(object, testing_input, X_testing=matrix(0,dim(tes
       theta_m=object@post_sample[i_S,(object@p_theta+object@p_x+3):(object@p_theta+object@p_x+2+object@q)]
     }
     
-    mean_cm=mathematical_model_eval(object@input,theta,object@simul_type,emulator,math_model);
+    mean_cm=mathematical_model_eval(object@input,theta,object@simul_type,object@emulator,math_model);
 
     output_minus_cm=object@output- mean_cm
     
@@ -113,30 +120,13 @@ predict.rcalibration<-function(object, testing_input, X_testing=matrix(0,dim(tes
       R_inv_y=Update_R_inv_y(R_inv_y,object@R0,beta_delta,object@kernel_type,object@alpha,object@tilde_lambda,object@num_obs)
     }
     
-    # if(object@discrepancy_type=="S-GaSP"){
-    #   R=separable_kernel(object@R0,beta_delta,kernel_type=object@kernel_type,object@alpha)
-    #   
-    #   R_middle=diag(object@num_obs)+object@tilde_lambda*R ##this is symmetric
-    #   
-    #   L_middle=t(chol(R_middle))
-    #   
-    #   R_inv_y=backsolve(t(L_middle),forwardsolve(L_middle,R_inv_y ))
-    # }
-    
     r=separable_kernel(r0,beta_delta,kernel_type=object@kernel_type,object@alpha)
     
     rt_R_inv_y=t(r)%*%R_inv_y
     
-    # if(object@simul_type==0){
-    #     p_theta=length(theta);
-    #     p_x=dim(testing_input)[2];
-    #     Testing_input=cbind(testing_input, t(matrix(theta,p_theta,N_testing)));
-    #     cm_obs_cur=Sample.rgasp(emulator,Testing_input);
-    # }else if(object@simul_type==1){
-    #     mean_cm_test=Mogihammer1(theta,testing_input);
-    # }
-    mean_cm_test=mathematical_model_eval(testing_input,theta,object@simul_type,emulator,math_model);
+    mean_cm_test=mathematical_model_eval(testing_input,theta,object@simul_type,object@emulator,math_model);
     
+    mean_cm_test_no_trend=mean_cm_test
       #f_M_testing=mean_cm_test
     
     if(object@have_trend){
@@ -147,6 +137,8 @@ predict.rcalibration<-function(object, testing_input, X_testing=matrix(0,dim(tes
     pred_mean=mean_cm_test+rt_R_inv_y
     
     record_cm_pred=record_cm_pred+mean_cm_test
+    record_cm_pred_no_trend=record_cm_pred_no_trend+mean_cm_test_no_trend
+    
     record_pred_mean=record_pred_mean+pred_mean
     
     if(!is.null(interval_est)){
@@ -210,12 +202,16 @@ predict.rcalibration<-function(object, testing_input, X_testing=matrix(0,dim(tes
   
   record_cm_pred=record_cm_pred/SS
   record_pred_mean=record_pred_mean/SS
+  record_cm_pred_no_trend=record_cm_pred_no_trend/SS
   
-  output.list <- list()
+  #output.list <- list()
   
-  output.list$math_model_mean=record_cm_pred
-  output.list$mean=record_pred_mean
+  #output.list$math_model_mean=record_cm_pred
+  #output.list$mean=record_pred_mean
   
+  predictobj@math_model_mean=record_cm_pred
+  predictobj@math_model_mean_no_trend=record_cm_pred_no_trend
+  predictobj@mean=record_pred_mean
   #ans.list=as.list(1:3)
   
   #ans.list[[1]]=record_cm_pred
@@ -223,21 +219,23 @@ predict.rcalibration<-function(object, testing_input, X_testing=matrix(0,dim(tes
   #ans.list[[3]]=NULL
   if(!is.null(interval_est)){
     record_interval=record_interval/SS
-    output.list$interval=record_interval
+    predictobj@interval=record_interval
   }
 
   
-  return(output.list)
+  return(predictobj)
   }
 }
 
   
 
 
-predict_discrepancy_separable_2dim<-function(object, testing_input_separable,X_testing=matrix(0,length(testing_input_separable[[1]])*length(testing_input_separable[[2]]),1 ), n_thinning=10,
-                                             emulator=NULL,math_model=NULL,...){
+predict_discrepancy_separable_2dim<-function(object, testing_input_separable,
+X_testing=matrix(0,length(testing_input_separable[[1]])*length(testing_input_separable[[2]]),1 ),
+n_thinning=10,interval_est=NULL,math_model=NULL,...){
 
-
+  predictobj<- new("predictobj.rcalibration")
+  
   r0_separable=as.list(1:object@p_x)
 
   for(i_x in 1:object@p_x){
@@ -248,6 +246,7 @@ predict_discrepancy_separable_2dim<-function(object, testing_input_separable,X_t
   testing_input=as.matrix(testing_input)
   
   record_cm_pred=0
+  record_cm_pred_no_trend=0
   record_pred_mean=0
   
   SS=floor(dim(object@post_sample)[1]/n_thinning)
@@ -273,7 +272,7 @@ predict_discrepancy_separable_2dim<-function(object, testing_input_separable,X_t
     eta_delta=exp(object@post_sample[i_S,object@p_theta+object@p_x+1])
     sigma_2_delta=object@post_sample[i_S,object@p_theta+object@p_x+2]
 
-    mean_cm=mathematical_model_eval(object@input,theta,object@simul_type,emulator,math_model);
+    mean_cm=mathematical_model_eval(object@input,theta,object@simul_type,object@emulator,math_model);
     
     # if(object@simul_type==2 | object@simul_type==3){
     #    mean_cm=Mogihammer(theta,input,object@simul_type)
@@ -303,18 +302,7 @@ predict_discrepancy_separable_2dim<-function(object, testing_input_separable,X_t
         R_inv_y=Update_R_inv_y(R_inv_y,object@R0,beta_delta,object@kernel_type,object@alpha,object@tilde_lambda,object@num_obs)
       }
 
-    # system.time(
-    # if(object@discrepancy_type=="S-GaSP"){
-    #     R=separable_kernel(object@R0,beta_delta,kernel_type=object@kernel_type,object@alpha)
-    #     
-    #     R_middle=diag(object@num_obs)+object@tilde_lambda*R ##this is symmetric
-    #     
-    #     L_middle=t(chol(R_middle))
-    #     
-    #     bbb=backsolve(t(L_middle),forwardsolve(L_middle,R_inv_y ))
-    # }
-    # )
-    
+
     if(object@kernel_type=="matern_5_2"){
       for(i_x in 1:object@p_x){
         r_separable[[i_x]]=matern_5_2_funct(r0_separable[[i_x]],beta_delta[i_x])
@@ -335,7 +323,9 @@ predict_discrepancy_separable_2dim<-function(object, testing_input_separable,X_t
     
     rt_R_inv_y=as.vector(t(r_separable[[1]])%*%r2_dot_R_inv_y)
     
-    mean_cm_test=mathematical_model_eval(testing_input,theta,object@simul_type,emulator,math_model);
+    mean_cm_test=mathematical_model_eval(testing_input,theta,object@simul_type,object@emulator,math_model);
+    
+    mean_cm_test_no_trend=mean_cm_test
     
     #if(object@simul_type==2 | object@simul_type==3){
     #   mean_cm_test=Mogihammer(theta,testing_input,object@simul_type)
@@ -350,6 +340,8 @@ predict_discrepancy_separable_2dim<-function(object, testing_input_separable,X_t
     pred_mean=mean_cm_test+rt_R_inv_y
     
     record_cm_pred=record_cm_pred+mean_cm_test
+    record_cm_pred_no_trend=record_cm_pred_no_trend+mean_cm_test_no_trend
+    
     record_pred_mean=record_pred_mean+pred_mean
     
     
@@ -360,17 +352,23 @@ predict_discrepancy_separable_2dim<-function(object, testing_input_separable,X_t
 
   
   record_cm_pred=record_cm_pred/SS
+  record_cm_pred_no_trend=record_cm_pred_no_trend/SS
   record_pred_mean=record_pred_mean/SS
   
-  output.list <- list()
+  predictobj@math_model_mean=record_cm_pred
+  predictobj@math_model_mean_no_trend=record_cm_pred_no_trend
+  predictobj@mean=record_pred_mean
+  #ans.list=as.list(1:3)
   
-  output.list$math_model_mean=record_cm_pred
-  output.list$mean=record_pred_mean
-  
-  #ans.list=as.list(1:2)
   #ans.list[[1]]=record_cm_pred
   #ans.list[[2]]=record_pred_mean
+  #ans.list[[3]]=NULL
+  if(!is.null(interval_est)){
+    record_interval=record_interval/SS
+    predictobj@interval=record_interval
+  }
   
-  return(output.list)
+  return(predictobj)
 }
+
 
