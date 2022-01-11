@@ -11,7 +11,8 @@ This function samples the variance and mean parameters assuming no discrepancy f
 \usage{
 
 Sample_sigma_2_theta_m_no_discrepancy(param,  output,   p_theta,   
-                                      X,  have_mean, inv_output_weights, cm_obs)
+                                      X,  have_mean, inv_output_weights, cm_obs,
+                                      S_2_f,num_obs_all)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -42,6 +43,14 @@ The inverse of the weights of outputs..
 outputs from the mathematical model.
 }
 
+
+  \item{S_2_f}{
+Variance of the data. This term is useful when there are repeated experiments. 
+}
+
+  \item{num_obs_all}{
+Total number of observations. If there is no repeated experiment, this is equal to the number of observable inputs. 
+}
 
 
 }

@@ -10,8 +10,10 @@ This function performs the posterior sampling for calibration parameters and oth
 }
 \usage{
 post_sample(input, output, R0_list, kernel_type, p_theta, output_weights, par_cur, 
-            tilde_lambda,prior_par,theta_range,S, X, have_trend,alpha,
-            sd_proposal,discrepancy_type, simul_type,emulator,math_model)
+            lambda_z,prior_par,theta_range,S,thinning, X, have_trend,alpha,
+            sd_proposal,discrepancy_type, simul_type,emulator,
+            emulator_type, loc_index_emulator,math_model,
+            S_2_f,num_obs_all)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -43,7 +45,7 @@ a vector of the weights of the output.
 current value of the posterior samples.
 }
 
-  \item{tilde_lambda}{
+  \item{lambda_z}{
 %%     ~~Describe \code{param} here~~
 a scalar parameter controling how close the math model to the reality in squared distance.
 }
@@ -57,6 +59,8 @@ a matrix for the range of the calibration parameters. The first column is the lo
   \item{S}{
 number of MCMC to run.
 }
+  \item{thinning}{the ratio between the number of posterior samples and the number of
+  recorded samples.}
 
   \item{X}{
 a matrix for the basis of the mean discrepancy. 
@@ -87,9 +91,25 @@ A string for type of discrepancy funcation. It can be chosen from 'no-discrepanc
   \item{emulator}{
    an S4 class of rgasp model from the RobustGaSP R Package.
 }
+  \item{emulator_type}{
+   a character to specify the type of emulator.  'rgasp' is for computer models with scalar-valued output and 'ppgasp'  for computer models with vectorized output.
+}
+
+
+  \item{loc_index_emulator}{
+   a vector of the location index from the ppgasp emulator to output. Only useful for vectorized output computer model emulated by the ppgasp emulator.
+}
+
   \item{math_model}{
   a function for the math model to be calibrated.
   }
+
+  \item{S_2_f}{
+Variance of the data. This term is useful when there are repeated experiments. 
+}
+
+  \item{num_obs_all}{
+Total number of observations. If there is no repeated experiment, this is equal to the number of observable inputs.}
 
 
 }

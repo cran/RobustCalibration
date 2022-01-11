@@ -1,5 +1,5 @@
-\name{predict_discrepancy_separable_2dim}
-\alias{predict_discrepancy_separable_2dim}
+\name{predict_separable_2dim}
+\alias{predict_separable_2dim}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
 %%  ~~function to do ... ~~
@@ -10,10 +10,10 @@ Fast prediction when the test points lie on a 2D lattice.
 This function computes fast computation when the test points lie on a 2D lattice.
 }
 \usage{
-predict_discrepancy_separable_2dim(object, testing_input_separable,
+predict_separable_2dim(object, testing_input_separable,
 X_testing=matrix(0,length(testing_input_separable[[1]])*
 length(testing_input_separable[[2]]),1), n_thinning=10,  
-interval_est = NULL,math_model=NULL,...)
+interval_est = NULL,math_model=NULL,test_loc_index_emulator=NULL,...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -27,6 +27,11 @@ and the second element is a vector of the coordinate of the longitude.
   \item{math_model}{
   a function for the math model to be calibrated.
   }
+    \item{test_loc_index_emulator}{
+   a vector of the location index from the ppgasp emulator to output. Only useful for vectorized output computer model emulated by the ppgasp emulator.
+  }
+
+
 
 
 }

@@ -14,7 +14,8 @@ Function to make prediction on Robust Calibration models after the rcalibration 
 \usage{
 \S4method{predict_MS}{rcalibration_MS}(object, testing_input,
                                        X_testing=as.list(rep(0,object@num_sources)),
-                                       n_thinning=10, testing_output_weights=NULL, 
+                                       testing_output_weights=NULL, 
+                                       n_thinning=10,
                                        interval_est=NULL,
                                        interval_data=rep(F,length(testing_input)),
                                        math_model=NULL,...)
@@ -24,8 +25,8 @@ Function to make prediction on Robust Calibration models after the rcalibration 
   \item{object}{an object of  class \code{rcalibration_MS}.}
   \item{testing_input}{a list of matrices containing the inputs where the \code{predict_MS} is to perform prediction.}
   \item{X_testing}{a list of matrices of mean/trend for prediction if specified.}
-  \item{n_thinning}{number of points thinning the MCMC posterior samples.}
   \item{testing_output_weights}{a list of vecots for the weight of testing outputs for multiple sources.}
+  \item{n_thinning}{number of points further thinning the MCMC posterior samples.}
     \item{interval_est}{a list of vectors for the posterior predctive credible interval for multiple sources. If interval_est is NULL, we do  not compute the posterior credible interval.  It can be specified as a vector of values ranging from zero to one. E.g.  }
   \item{interval_data}{a vector of bool values to decide whether the experimental noise is included for computing the posterior credible interval.  }
   \item{math_model}{

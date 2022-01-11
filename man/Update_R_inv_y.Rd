@@ -9,7 +9,7 @@ Update the inverse of covariance multiplied by the outputs in the S-GaSP model. 
 This function update the inverse of R_z multiple the outputs in the S-GaSP model for prediction.
 }
 \usage{
-Update_R_inv_y(R_inv_y,  R0,  beta_delta,   kernel_type,  alpha,  tilde_lambda,  num_obs)
+Update_R_inv_y(R_inv_y,  R0,  beta_delta,   kernel_type,  alpha,  lambda_z,  num_obs)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -35,7 +35,7 @@ Type of kernel. \code{matern_3_2} and \code{matern_5_2} are \code{Matern kernel}
 Roughness parameters in the kernel functions. It is only useful if the power exponential correlation function is used.
 }
 
-  \item{tilde_lambda}{
+  \item{lambda_z}{
 %%     ~~Describe \code{param} here~~
 A parameter controling how close the math model to the reality in squared distance.
 }

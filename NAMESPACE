@@ -2,14 +2,13 @@ useDynLib(RobustCalibration)
 #exportPattern("^[[:alpha:]]+")
 import(Rcpp, RobustGaSP, methods)
 importFrom(Rcpp, evalCpp)
-importFrom(stats,qt)
-importFrom(stats,optimize)
-importFrom("stats",  "rchisq", "rnorm","qnorm","quantile","sd")
+importFrom("stats", "optim", "optimize", "rchisq", "rnorm","rgamma","runif","qnorm","qt","quantile","sd")
 
 
 ## S4
-exportClasses(rcalibration, rcalibration_MS, predictobj.rcalibration)
+exportClasses(rcalibration,rcalibration_MS,predictobj.rcalibration)
 exportMethods(show,predict,predict_MS)
-export(rcalibration,rcalibration_MS,predict_discrepancy_separable_2dim)
-#S3method(predict,rcalibration)
-#S3method(predict,rcalibration_MS)
+export(rcalibration,rcalibration_MS,predict_separable_2dim,Mogihammer,Get_R_new,Get_R_z_new,mathematical_model_eval, predict.rcalibration, predict_MS.rcalibration_MS,Sample_sigma_2_theta_m_no_discrepancy,Sample_sigma_2_theta_m)
+
+S3method(predict,rcalibration)
+S3method(predict_MS,rcalibration_MS)

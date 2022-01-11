@@ -23,7 +23,7 @@ Objects of this class are created and initialized with the function \code{\link{
     \item{\code{kernel_type}:}{A \code{character} to specify the type of kernel to use.}
     \item{\code{alpha}:}{Object of class \code{vector}. Each element is the parameter for the roughness for each input coordinate in the kernel.}
     \item{\code{theta_range}:}{A \code{matrix} for the range of the calibration parameters.}
-    \item{\code{tilde_lambda}:}{Object of class \code{numeric} about how close the math model to the reality in squared distance when the S-GaSP model is used for modeling the discrepancy.}
+    \item{\code{lambda_z}:}{Object of class \code{vector} about how close the math model to the reality in squared distance when the S-GaSP model is used for modeling the discrepancy.}
     \item{\code{S}:}{Object of class \code{integer} about how many posterior samples to run.}
     \item{\code{S_0}:}{Object of class \code{integer} about the number of burn-in samples.}
     \item{\code{prior_par}:}{Object of class \code{vector} about prior parameters.}
@@ -32,11 +32,26 @@ Objects of this class are created and initialized with the function \code{\link{
     \item{\code{discrepancy_type}:}{Object of class \code{character} about the discrepancy. If it is 'no-discrepancy', it means no discrepancy function. If it is 'GaSP', it means the GaSP model for the discrepancy function. If it is 'S-GaSP', it means the S-GaSP model for the discrepancy function.}
 
     \item{\code{simul_type}:}{Object of class \code{integer} about the math model/simulator. If the simul_type is 0, it means we use RobustGaSP R package to build an emulator for emulation. If the simul_type is 1, it means the function of the math model is given by the user. When simul_type is 2 or 3, the mathematical model is the geophyiscal model for Kilauea Volcano.  If the simul_type is 2, it means it is for the ascending mode InSAR data; if the simul_type is 3, it means it is for the descending mode InSAR data.}
-        \item{\code{emulator}:}{An S4 class of \code{rgasp} from the RobustGaSP package.}
+        \item{\code{emulator_rgasp}:}{An S4 class of \code{rgasp} from the RobustGaSP package.}
+                \item{\code{emulator_ppgasp}:}{An S4 class of \code{ppgasp} from the RobustGaSP package.}
     \item{\code{post_sample}:}{Object of class \code{matrix} for the posterior samples after burn-in.}
     \item{\code{post_value}:}{Object of class \code{vector} for the posterior values after burn-in.}
     \item{\code{accept_S}:}{Object of class \code{vector} for the number of proposed samples of the calibation parameters are accepted in MCMC. The first value is the number of proposed calibration parameters  are accepted in MCMC. The second value is  the number of proposed range and nugget parameters  are accepted.}
         \item{\code{count_boundary}:}{Object of class \code{vector} for the number of proposed samples of the calibation parameters are outside the range and they are rejected directly.}
+               \item{\code{have_replicates}:}{Object of class \code{bool} for having repeated experiments (replicates) or not.}
+           \item{\code{num_replicates}:}{Object of class \code{vector} for the number of replicates at each observable input.}
+       \item{\code{thinning}:}{Object of class \code{integer} for the ratio between the number of posterior samples and the number of  samples to be recorded.}
+       \item{\code{S_2_f}:}{Object of class \code{numeric} for the variance of the field observations.}
+       \item{\code{num_obs_all}:}{Object of class \code{integer} for the total number of field observations.}
+       \item{\code{method}:}{Object of class \code{character} for posterior sampling or maximum likelihood estimation.}
+       \item{\code{initial_values}:}{Object of class \code{matrix} for initial starts of kernel parameters in maximum likelihood estimation.}
+      \item{\code{param_est}:}{Object of class \code{vector} for estimated range and nugget parameter in parameter estimation.}
+            \item{\code{opt_value}:}{Object of class \code{numeric} for optimized likelihood or loss function.}
+            \item{\code{emulator_type}:}{Object of class \code{character} for the type of emulator. 'rgasp' means scalar-valued emulator and 'ppgasp' means vectorized emulator.}
+            \item{\code{loc_index_emulator}:}{Object of class \code{vector} for location index to output in the ppgasp emulator  for computer models with vectorized output.}
+            
+
+
 
     }
   }
@@ -46,7 +61,7 @@ Objects of this class are created and initialized with the function \code{\link{
   \describe{
     \item{show}{Prints the main slots of the object. }
     \item{predict}{See \code{\link[=predict.rcalibration]{predict}}.}
-    \item{predict_discrepancy_separable_2dim}{See \code{\link[=predict_discrepancy_separable_2dim]{predict_discrepancy_separable_2dim}}.}
+    \item{predict_separable_2dim}{See \code{\link[=predict_separable_2dim]{predict_separable_2dim}}.}
 
 	 }
 }

@@ -12,25 +12,28 @@ Prediction for the robust calibration model
 Function to make prediction on Robust Calibration models after the rcalibration class has been constructed.
 }
 \usage{
-\S4method{predict}{rcalibration}(object, testing_input,X_testing=matrix(0,dim(testing_input)[1],1),
+\S4method{predict}{rcalibration}(object, testing_input,X_testing=NULL,
                                  n_thinning=10,
-                                 testing_output_weights=rep(1,dim(testing_input)[1]),
+                                 testing_output_weights=NULL,
                                  interval_est=NULL,interval_data=F,
-                                 math_model=NULL,...)
+                                 math_model=NULL,test_loc_index_emulator=NULL,...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{an object of  class \code{rcalibration}.}
   \item{testing_input}{a matrix containing the inputs where the \code{predict} is to perform prediction.}
   \item{X_testing}{a matrix of mean/trend for prediction.}
-  \item{n_thinning}{number of points thinning the MCMC posterior samples.}
+  \item{n_thinning}{number of points further thinning the MCMC posterior samples.}
   \item{testing_output_weights}{the weight of testing outputs.}
     \item{interval_est}{a vector for the the posterior credible interval. If interval_est is NULL, we do  not compute the posterior credible interval.  It can be specified as a vector of values ranging from zero to one. E.g. if \code{interval_est=c(0.025, 0.975)}, the 95 posterior credible interval will be computed. }
   \item{interval_data}{a bool value to decide whether the experimental noise is included for computing the posterior credible interval.  }
   \item{math_model}{
   a function for the math model to be calibrated.
   }
-
+  
+  \item{test_loc_index_emulator}{
+   a vector of the location index from the ppgasp emulator to output. Only useful for vectorized output computer model emulated by the ppgasp emulator.
+  }
   \item{...}{extra arguments to be passed to the function (not implemented yet).}
 }
 
@@ -193,22 +196,22 @@ model_sgasp_with_mean=rcalibration(design=input_stack, observations=output_stack
 #plot(model_sgasp_with_mean@post_sample[,1],type='l',xlab='num',ylab=expression(theta))   
 show(model_sgasp_with_mean)
 
-
 ## test data set
 testing_input=as.matrix(seq(0,6,0.02))
 
 
-##in this way we don't output the interval estimation
-## one can have interval using interval_est=c(0.025,0.975),interval_data=TRUE
-prediction_sgasp_with_mean=predict(model_sgasp_with_mean,testing_input,
-                                   X_testing=matrix(1,dim(testing_input)[1],1),
-                                   math_model=math_model_eg1,n_thinning = 20)
+prediction_sgasp_with_mean=predict(model_sgasp_with_mean,testing_input, X_testing=matrix(1,dim
+(testing_input)[1],1),
+math_model=math_model_eg1,n_thinning = 50,
+interval_est=c(0.025,0.975),interval_data=TRUE)
 
 
 ##plot for the S-GaSP 
 ##for this example, with a mean structure, it fits much better
-min_val=min(prediction_sgasp_with_mean@mean,output,testing_output)
-max_val=max(prediction_sgasp_with_mean@mean,output,testing_output)
+min_val=min(prediction_sgasp_with_mean@mean,output,testing_output,
+prediction_sgasp_with_mean@interval[,1])
+max_val=max(prediction_sgasp_with_mean@mean,output,testing_output,
+prediction_sgasp_with_mean@interval[,2])
 
 plot(testing_input,prediction_sgasp_with_mean@mean,type='l',col='blue',xlab='x',
      ylab='y',ylim=c(min_val,max_val) )
@@ -217,6 +220,8 @@ plot(testing_input,prediction_sgasp_with_mean@mean,type='l',col='blue',xlab='x',
 
 lines(input,output,type='p')
 lines(testing_input,prediction_sgasp_with_mean@math_model_mean,col='blue',lty=3)
+lines(testing_input,prediction_sgasp_with_mean@interval[,1],col='blue',lty=2)
+lines(testing_input,prediction_sgasp_with_mean@interval[,2],col='blue',lty=2)
 
 lines(testing_input,testing_output,type='l')
 
@@ -229,6 +234,7 @@ mean((testing_output-prediction_sgasp_with_mean@mean)^2)
 
 ## MSE if the math model is used for prediction 
 mean((testing_output-prediction_sgasp_with_mean@math_model_mean)^2)
+
 
 \dontrun{
   #-------------------------------------------------------------

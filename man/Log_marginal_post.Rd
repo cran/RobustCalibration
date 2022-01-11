@@ -9,7 +9,8 @@ Natural Logorithm of the posterior. }
 This function compute the natural Logorithm of the posterior assuming the GaSP or S-GaSP models for the discrepancy function.
 }
 \usage{
-Log_marginal_post(param, L_cur, output,  p_theta,  p_x, X, have_mean, CL, a, b,  cm_obs)
+Log_marginal_post(param, L_cur, output,  p_theta,  p_x, X, have_mean, CL, a, b,  cm_obs
+,S_2_f,num_obs_all)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -53,6 +54,14 @@ Prior parameter in the jointly robust prior.
 
   \item{cm_obs}{
 Outputs from the mathematical model.
+}
+
+  \item{S_2_f}{
+Variance of the data. This term is useful when there are repeated experiments. 
+}
+
+  \item{num_obs_all}{
+Total number of observations. If there is no repeated experiment, this is equal to the number of observable inputs. 
 }
 
 

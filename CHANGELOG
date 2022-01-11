@@ -1,3 +1,9 @@
+##change / RobustCalibration 0.5.2
+* code maximum likelihood estimator by argument "method" in rcalibration and rcalibration_MS
+* ppgasp function from RobustGaSP package is called for emulating expensive simulator with vectorized output
+* allow user to specify replications specifying different types of observations in rcalibration 
+* introduce a default scaling parameter lambda_z in rcalibration, rcalibration_MS
+
 ## change / RobustCalibration 0.5.1
   * fixed the bug (appearing on line line 147 in rcalibration()) with an emulator.
   * created rcalibration_MS() and rcalibration_MS class for calibrating mathematical models for multiple sources.

@@ -10,7 +10,7 @@ Cholesky decomposition of the covariance matrix in S-GaSP.
 This function computes the Cholesky decomposition of the covariance matrix in GaSP.
 }
 \usage{
-Get_R_z_new(beta_delta,  eta_delta, tilde_lambda,  R0, kernel_type,  alpha, 
+Get_R_z_new(beta_delta,  eta_delta, lambda_z,  R0, kernel_type,  alpha, 
             inv_output_weights)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -23,7 +23,7 @@ a vector of inverse range parameters.
 %%     ~~Describe \code{param} here~~
 a scalar of nugget parameters.
 }
-  \item{tilde_lambda}{
+  \item{lambda_z}{
 %%     ~~Describe \code{param} here~~
 a scalar parameter controling how close the math model to the reality in squared distance.
 }

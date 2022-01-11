@@ -28,7 +28,7 @@ Objects of this class are created and initialized with the function \code{\link{
     \item{\code{kernel_type}:}{Object of class \code{vector}. Each element is a \code{character} to specify the type of kernel to use in each source.}
     \item{\code{alpha}:}{Object of class \code{list}. Each element is a \code{vector} of parameters for the roughness parameters in the kernel in each source.}
     \item{\code{theta_range}:}{A \code{matrix} for the range of the calibration parameters.}
-    \item{\code{tilde_lambda}:}{Object of class \code{vector}.  Each element is a \code{numeric} value about how close the math model to the reality in squared distance when the S-GaSP model is used for modeling the discrepancy in each source.}
+    \item{\code{lambda_z}:}{Object of class \code{vector}.  Each element is a \code{numeric} value about how close the math model to the reality in squared distance when the S-GaSP model is used for modeling the discrepancy in each source.}
     \item{\code{S}:}{Object of class \code{integer} about how many posterior samples to run.}
     \item{\code{S_0}:}{Object of class \code{integer} about the number of burn-in samples.}
     \item{\code{prior_par}:}{Object of class \code{list}. Each element is a \code{vector} about prior parameters.}
@@ -39,13 +39,25 @@ Objects of this class are created and initialized with the function \code{\link{
     \item{\code{discrepancy_type}:}{Object of class \code{vector}.  Each element is a \code{character} about the type of the discrepancy in each source. If it is 'no-discrepancy', it means no discrepancy function. If it is 'GaSP', it means the GaSP model for the discrepancy function. If it is 'S-GaSP', it means the S-GaSP model for the discrepancy function.}
 
     \item{\code{simul_type}:}{Object of class \code{vector}. Each element is an \code{integer} about the math model/simulator. If the simul_type is 0, it means we use RobustGaSP R package to build an emulator for emulation. If the simul_type is 1, it means the function of the math model is given by the user. When simul_type is 2 or 3, the mathematical model is the geophyiscal model for Kilauea Volcano.  If the simul_type is 2, it means it is for the ascending mode InSAR data; if the simul_type is 3, it means it is for the descending mode InSAR data.}
-    \item{\code{emulator}:}{Object of class \code{list}.  Each element is an S4 class of \code{rgasp} from the RobustGaSP package in each source.}
+    \item{\code{emulator_rgasp}:}{Object of class \code{list}.  Each element is an S4 class of \code{rgasp} from the RobustGaSP package in each source.}
+        \item{\code{emulator_ppgasp}:}{Object of class \code{list}.  Each element is an S4 class of \code{ppgasp} from the RobustGaSP package in each source.}
         \item{\code{post_theta}:}{Object of class \code{matrix} for the posterior samples of the calibration parameters after burn-in.}
     \item{\code{post_individual_par}:}{Object of class \code{list}. Each element is a \code{matrix} for the posterior samples after burn-in in each source.}
     \item{\code{post_value}:}{Object of class \code{vector} for the posterior values after burn-in.}
         \item{\code{accept_S_theta}:}{Object of class \code{numerical} for the number of proposed samples of the calibration parameters are accepted in MCMC.}
     \item{\code{accept_S_beta}:}{Object of class \code{vector} for the number of proposed samples of the range and nugget parameters in each source are accepted in MCMC.}
         \item{\code{count_boundary}:}{Object of class \code{vector} for the number of proposed samples of the calibation parameters are outside the range and they are rejected directly.}
+       \item{\code{have_measurement_bias_recorded}:}{Object of class \code{bool} for whether measurement bias will be recorded or not.}
+       \item{\code{measurement_bias}:}{Object of class \code{bool} for whether measurement bias exists or not.}
+              \item{\code{post_delta}:}{Object of class \code{matrix} of samples of model discrepancy.}
+
+       
+       \item{\code{post_measurement_bias}:}{Object of class \code{list} of samples of measurement_bias if measurement bias is chosen to be recorded.}
+       \item{\code{thinning}:}{Object of class \code{integer} for the ratio between the number of posterior samples and the number of  samples to be recorded.}
+            \item{\code{emulator_type}:}{Object of class \code{vector} for the type of emulator for each source of data. 'rgasp' means scalar-valued emulator and 'ppgasp' means vectorized emulator.}
+            \item{\code{loc_index_emulator}:}{Object of class \code{list} for location index to output in ghe ppgasp emulator  for computer models with vectorized output.}
+
+
     }
   }
 

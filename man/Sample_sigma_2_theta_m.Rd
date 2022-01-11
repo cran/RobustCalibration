@@ -9,7 +9,8 @@ Sample the variance and mean parameters. }
 This function Samples the variance and mean parameters assuming the GaSP or S-GaSP models for the discrepancy function.
 }
 \usage{
-Sample_sigma_2_theta_m(param,  L_cur,  output,   p_theta,  p_x,  X,  have_mean, cm_obs)
+Sample_sigma_2_theta_m(param,  L_cur,  output,   p_theta,  p_x,  X,  have_mean, cm_obs
+,S_2_f,num_obs_all)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -44,6 +45,13 @@ Whether the mean discrepancy is zero or not.
 outputs from the mathematical model.
 }
 
+  \item{S_2_f}{
+Variance of the data. This term is useful when there are repeated experiments. 
+}
+
+  \item{num_obs_all}{
+Total number of observations. If there is no repeated experiment, this is equal to the number of observable inputs. 
+}
 
 
 }

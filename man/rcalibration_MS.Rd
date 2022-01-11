@@ -13,19 +13,22 @@ Setting up the Calibration model for estimating the parameters via MCMC for mult
 }
 \usage{
   rcalibration_MS(design, observations, p_theta=NULL, index_theta=NULL,
-                            X=as.list(rep(0,length(design))), 
-                            have_trend=rep(FALSE,length(design)),
-                            simul_type=rep(0, length(design)),
-                            input_simul=NULL, output_simul=NULL,
-                            simul_nug=rep(FALSE,length(design)),math_model=NULL,
-                            theta_range=NULL, sd_proposal_theta=rep(0.05,p_theta),
-                            sd_proposal_cov_par=NULL,
-                            S=10000,S_0=1000, 
-                            discrepancy_type=rep('S-GaSP',length(design)),
-                            kernel_type=rep('matern_5_2',length(design)),
-                            tilde_lambda=rep(1/2,length(design)), 
-                            a=NULL,b=NULL,alpha=NULL,
-                            output_weights=NULL)
+                  X=as.list(rep(0,length(design))), 
+                  have_trend=rep(FALSE,length(design)),
+                  simul_type=rep(1, length(design)),
+                  input_simul=NULL, output_simul=NULL,
+                  simul_nug=rep(FALSE,length(design)),loc_index_emulator=NULL,
+                  math_model=NULL,
+                  theta_range=NULL, sd_proposal_theta=rep(0.05,p_theta),
+                  sd_proposal_cov_par=NULL,
+                  S=10000,S_0=2000, thinning=1,measurement_bias=FALSE, 
+                  shared_design=NULL,have_measurement_bias_recorded=F,
+                            shared_X=0,have_shared_trend=FALSE,
+                  discrepancy_type=rep('S-GaSP',length(design)+measurement_bias),
+                  kernel_type=rep('matern_5_2',length(design)+measurement_bias),
+                  lambda_z=list(NA), 
+                  a=NULL,b=NULL,alpha=NULL,
+                  output_weights=NULL)
  % \S4method{show}{rgasp}(object)    
       
 }
@@ -63,6 +66,11 @@ Setting up the Calibration model for estimating the parameters via MCMC for mult
 %%     ~~Describe \code{trend} here~~
 }
 
+  \item{loc_index_emulator}{a list for location index to output in the ppgasp emulator  for computer models with vectorized output.
+}
+
+
+
 
   \item{math_model}{a list of functions of the math models provided by the user for multiple sources. It is only useful if simul_type is 1, meaning that we know the math model and it can be computed fast. If the evaluation the math model is computationally slow, one should set simul_type to be 0 to emulate the math model. 
 }
@@ -82,12 +90,23 @@ Setting up the Calibration model for estimating the parameters via MCMC for mult
 }
   \item{S_0}{an integer about about the number of burn-in samples. 
 }
+  \item{thinning}{the ratio between the number of posterior samples and the number of
+  recorded samples.}
+
+  \item{measurement_bias}{containing measurement bias or not.}
+
+  \item{shared_design}{A matrix for shared design across different sources of data used 
+   when measurement bias exists.}
+  \item{have_measurement_bias_recorded}{A bool value whether we record measurement bias or    not.}
+    \item{shared_X}{A matrix of shared trend when measurement bias exists.}
+
+    \item{have_shared_trend}{A bool value whether we have shared trend when measurement bias exists.}
 
   \item{discrepancy_type}{a vector of characters about the type of the discrepancy for each source.  If it is 'no-discrepancy', it means no discrepancy function. If it is 'GaSP', it means the GaSP model for the discrepancy function. If it is 'S-GaSP', it means the S-GaSP model for the discrepancy function.}
 
 
   \item{kernel_type}{a vector of characters about the type of the discrepancy.type of kernel for each source. \code{matern_3_2} and \code{matern_5_2} are \code{Matern kernel} with roughness parameter 3/2 and 5/2 respectively. \code{pow_exp} is power exponential kernel with roughness parameter alpha. If \code{pow_exp} is to be used, one needs to specify its roughness parameter alpha.}
- \item{tilde_lambda}{a vector numeric values about how close the math model to the reality in squared distance when the S-GaSP model is used for modeling the discrepancy for each source.}
+ \item{lambda_z}{a \code{vector} numeric values about how close the math model to the reality in squared distance when the S-GaSP model is used for modeling the discrepancy for each source.}
  \item{a}{a vector of the prior parameter for multiple sources.}
   \item{b}{a vector of the prior parameter for multiple sources.}
   \item{alpha}{a list of vectors of roughness parameters in the kernel for multiple sources.}

@@ -8,7 +8,8 @@ Evaluation of the mathmatical model at given observed inputs and calibration par
 This function evaluates the mathematical model at given observed inputs and calibration parameters.
 }
 \usage{
-mathematical_model_eval(input,theta,simul_type, emulator,math_model)
+mathematical_model_eval(input,theta,simul_type, emulator,
+emulator_type,loc_index_emulator,math_model)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -26,6 +27,16 @@ a vector of calibration parameters.
   \item{emulator}{
    an S4 class of rgasp model from the RobustGaSP R Package.
 }
+  \item{emulator_type}{
+   a character to specify the type of emulator.  'rgasp' is for computer models with scalar-valued output and 'ppgasp'  for computer models with vectorized output.
+}
+
+
+  \item{loc_index_emulator}{
+   a vector of the location index from the ppgasp emulator to output. Only useful for vectorized output computer model emulated by the ppgasp emulator.
+}
+
+
   \item{math_model}{
   a function for the math model to be calibrated.
   }
