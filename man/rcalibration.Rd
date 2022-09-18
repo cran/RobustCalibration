@@ -90,7 +90,7 @@ Setting up the Calibration model for estimating the parameters via MCMC with or 
   \item{output_weights}{a vector of the weights of the outputs.}
   \item{method}{characters for method of parameter estimation. If it is 'post_sample', the posterior sampling will be used. If it is 'mle', the maximum likelihood estimator will be used.}
   \item{initial_values}{
-a matrix of initial values of the kernel parameters to be optimized numerically, where each row of the matrix contains a set of the log inverse range parameters and the log nugget parameter. 
+  either a vector or a matrix of initial values of parameters. If posterior sampling method is used, it needs to be vector of the initial values of the calibration parameters. If an optimization method is used, it can be a matrix of the calbiration parameters and kernel parameters (log inverse range parameters and the log nugget parameter) to be optimized numerically, where each row of the matrix contains a set of initial values. 
   }
   \item{num_initial_values}{
 the number of initial values of the kernel parameters in optimization.

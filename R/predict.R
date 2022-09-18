@@ -103,8 +103,8 @@ predict.rcalibration<-function(object, testing_input, X_testing=NULL,
           
         }
       }
-      record_cm_pred=record_cm_pred/SS
-      record_cm_pred_no_trend=record_cm_pred_no_trend/SS
+      record_cm_pred=record_cm_pred/floor(SS)
+      record_cm_pred_no_trend=record_cm_pred_no_trend/floor(SS)
       #output.list <- list()
       
       #output.list$math_model_mean=record_cm_pred
@@ -115,7 +115,7 @@ predict.rcalibration<-function(object, testing_input, X_testing=NULL,
       
       if(!is.null(interval_est)){
         if(interval_data==T){
-          record_interval=record_interval/SS
+          record_interval=record_interval/floor(SS)
           #output.list$interval=record_interval
           predictobj@interval=record_interval
           #ans.list[[2]]=record_interval
@@ -281,9 +281,9 @@ predict.rcalibration<-function(object, testing_input, X_testing=NULL,
         
       }
       
-      record_cm_pred=record_cm_pred/SS
-      record_pred_mean=record_pred_mean/SS
-      record_cm_pred_no_trend=record_cm_pred_no_trend/SS
+      record_cm_pred=record_cm_pred/floor(SS)
+      record_pred_mean=record_pred_mean/floor(SS)
+      record_cm_pred_no_trend=record_cm_pred_no_trend/floor(SS)
       
       predictobj@math_model_mean=record_cm_pred
       predictobj@math_model_mean_no_trend=record_cm_pred_no_trend
@@ -291,7 +291,7 @@ predict.rcalibration<-function(object, testing_input, X_testing=NULL,
       
       
       if(!is.null(interval_est)){
-        record_interval=record_interval/SS
+        record_interval=record_interval/floor(SS)
         predictobj@interval=record_interval
       }
       
@@ -334,7 +334,7 @@ predict.rcalibration<-function(object, testing_input, X_testing=NULL,
       predictobj@mean=predictobj@math_model_mean ##mean as math model mean if no discrepancy 
       
       if(!is.null(interval_est)&(interval_data==T)){
-        #record_interval=record_interval/SS
+        #record_interval=record_interval/floor(SS)
         predictobj@interval=record_interval
       }
       
@@ -671,9 +671,9 @@ predict_separable_2dim<-function(object, testing_input_separable,
   
   
   
-    record_cm_pred=record_cm_pred/SS
-    record_cm_pred_no_trend=record_cm_pred_no_trend/SS
-    record_pred_mean=record_pred_mean/SS
+    record_cm_pred=record_cm_pred/floor(SS)
+    record_cm_pred_no_trend=record_cm_pred_no_trend/floor(SS)
+    record_pred_mean=record_pred_mean/floor(SS)
   
     predictobj@math_model_mean=record_cm_pred
     predictobj@math_model_mean_no_trend=record_cm_pred_no_trend
@@ -684,7 +684,7 @@ predict_separable_2dim<-function(object, testing_input_separable,
     #ans.list[[2]]=record_pred_mean
     #ans.list[[3]]=NULL
     if(!is.null(interval_est)){
-      record_interval=record_interval/SS
+      record_interval=record_interval/floor(SS)
       predictobj@interval=record_interval
     }
   }else{

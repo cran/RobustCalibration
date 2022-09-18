@@ -186,8 +186,12 @@ MatrixXd Get_R_z_new(const Eigen::VectorXd beta_delta, const double  eta_delta, 
   //MatrixXd R_z_tilde=R_z+eta_delta*mat;
 
   //2020 July 11, change parameterization
-  MatrixXd R_z_tilde=1.0/eta_delta*R_z+mat;
-  
+  MatrixXd R_z_tilde;
+  if(eta_delta>0){
+       R_z_tilde=1.0/eta_delta*R_z+mat;
+  }else{
+     R_z_tilde=R_z; //this may only be used in the multi-observations with measurement bias session
+  }
 	    
   LLT<MatrixXd> lltOfR_z_tilde(R_z_tilde);            
   MatrixXd L_R_z =  lltOfR_z_tilde.matrixL();   //retrieve factor L  in the decomposition
@@ -204,7 +208,12 @@ MatrixXd Get_R_new(const Eigen::VectorXd beta_delta, const double  eta_delta, co
 
       //MatrixXd R_tilde=R+eta_delta*mat;
       //July 11, 2020 change parameterization and sample
-      MatrixXd R_tilde=1.0/eta_delta*R+mat;
+      MatrixXd R_tilde;
+      if(eta_delta>0){
+          R_tilde=1.0/eta_delta*R+mat;
+      }else{
+          R_tilde=R;   //no noise case, only for measurement bias case
+      }
       
       LLT<MatrixXd> lltOfR_tilde(R_tilde);            
       MatrixXd L =  lltOfR_tilde.matrixL();   //retrieve factor L  in the decomposition
@@ -314,7 +323,7 @@ double Log_marginal_post(const Eigen::VectorXd  param,Eigen::MatrixXd L_cur, con
   VectorXd theta=param.head(p_theta);
   // VectorXd beta_delta=(param.segment(p_theta,p_x)).array().exp().matrix();
 
-  double sigma_2_0 =param(p_theta+p_x+1);
+  double sigma_2_0 =param(p_theta+p_x+1); //here the p_x+1 are the sigma_2_0
 
 
   
@@ -501,6 +510,7 @@ MatrixXd Update_R_inv_y(VectorXd R_inv_y, List R0, VectorXd beta_delta, String k
 
 
 //compute the inverse for all matrix 
+// Lemma S2 in multi-calibration paper
 // [[Rcpp::export]] 
 List Get_inv_all(const List param, const VectorXd lambda_z, const VectorXi is_SGaSP,  const  List R0,  const  List kernel_type, const List alpha_list, const List p_x, const int num_sources){
   
@@ -588,18 +598,26 @@ List Get_inv_all(const List param, const VectorXd lambda_z, const VectorXi is_SG
 VectorXd Sample_delta(const List cov_inv_all,const List tilde_output_cur,
                       const List param,const List p_x, const int num_sources,
                       const int num_obs, const VectorXd rand_norm){
+  //,int p_theta
+  
   MatrixXd Sigma_i_inv;
   VectorXd tilde_output_i;
   MatrixXd Sigma_inv_sum=MatrixXd::Zero(num_obs,num_obs);
   MatrixXd Sigma_inv_tilde_output_sum=MatrixXd::Zero(num_obs,1);
   VectorXd par_cur_individual_i;
+  double nu;
   int p_x_i;
   for(int i = 0; i < num_sources; i++){
     par_cur_individual_i=param[i];
     Sigma_i_inv=cov_inv_all[i];
     p_x_i=p_x[i];
     
-    Sigma_i_inv=Sigma_i_inv/par_cur_individual_i(p_x_i+1);
+    //Sigma_i_inv=Sigma_i_inv/par_cur_individual_i(p_x_i+1); //par_cur_individual_i(p_x_i+1) is the \sigma^2_0l not \sigma^2_l, needs to change
+    
+    //change Sep, 2022
+    nu=exp(par_cur_individual_i(p_x_i));
+    Sigma_i_inv=Sigma_i_inv*nu/par_cur_individual_i(p_x_i+1); //because Sigma_i_inv is R+eta*I and par_cur_individual_i(p_x_i+1) is sigma^{-2}_0, we need sigma^{-2}
+    
     
     tilde_output_i=tilde_output_cur[i];
       
@@ -616,6 +634,8 @@ VectorXd Sample_delta(const List cov_inv_all,const List tilde_output_cur,
   //Sigma_inv_sum=Sigma_inv_sum+Sigma_i_inv;
   
   Sigma_inv_sum=Sigma_inv_sum+Sigma_i_inv/par_cur_individual_i(p_x_i);
+ // Sigma_inv_sum=Sigma_inv_sum+Sigma_i_inv/par_cur_individual_i(p_x_i+p_theta);
+  
   
   MatrixXd Sigma_inv_sum_inv=Sigma_inv_sum.inverse();
   

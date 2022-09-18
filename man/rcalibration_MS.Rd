@@ -26,7 +26,7 @@ Setting up the Calibration model for estimating the parameters via MCMC for mult
                             shared_X=0,have_shared_trend=FALSE,
                   discrepancy_type=rep('S-GaSP',length(design)+measurement_bias),
                   kernel_type=rep('matern_5_2',length(design)+measurement_bias),
-                  lambda_z=list(NA), 
+                  lambda_z=as.list(rep(NA,length(design)+measurement_bias)),
                   a=NULL,b=NULL,alpha=NULL,
                   output_weights=NULL)
  % \S4method{show}{rgasp}(object)    
@@ -54,56 +54,42 @@ Setting up the Calibration model for estimating the parameters via MCMC for mult
 %%     ~~Describe \code{trend} here~~
 }
 
-  \item{simul_type}{a vector of integer about the math model/simulator for multiple sources. If the simul_type is 0, it means we use RobustGaSP R package to build an emulator for emulation. If the simul_type is 1, it means the function of the math model is given by the user. When simul_type is 2 or 3, the mathematical model is the geophyiscal model for Kilauea Volcano.  If the simul_type is 2, it means it is for the ascending mode InSAR data; if the simul_type is 3, it means it is for the descending mode InSAR data.
-}
+  \item{simul_type}{a vector of integer about the math model/simulator for multiple sources. If the simul_type is 0, it means we use RobustGaSP R package to build an emulator for emulation. If the simul_type is 1, it means the function of the math model is given by the user. When simul_type is 2 or 3, the mathematical model is the geophyiscal model for Kilauea Volcano.  If the simul_type is 2, it means it is for the ascending mode InSAR data; if the simul_type is 3, it means it is for the descending mode InSAR data.}
 
-  \item{input_simul}{a list of matices, each having dimension D x (p_x+p_theta) being the design for emulating the math model. It is only useful if the ith value of simul_type is 0 for the ith source, meaning that we emulate the output of the math model.
-}
+  \item{input_simul}{a list of matices, each having dimension D x (p_x+p_theta) being the design for emulating the math model. It is only useful if the ith value of simul_type is 0 for the ith source, meaning that we emulate the output of the math model.}
 
-  \item{output_simul}{a list of vectors, each having dimension D x 1 being the math model outputs on the design (input_simul). It is only useful if the ith value of simul_type is 0 for the ith source, meaning that we emulate the output of the math model.
-}
-  \item{simul_nug}{a vectors of bool values meaning whether we have a nugget for emulating the math model/simulator for this source. If the math model is stochastic, we often need a nugget. If simul_Nug is TRUE, it means we have a nugget for the emulator. If simul_Nug is FALSE, it means we do not have a nugget for the emulator.
-%%     ~~Describe \code{trend} here~~
-}
+  \item{output_simul}{a list of vectors, each having dimension D x 1 being the math model outputs on the design (input_simul). It is only useful if the ith value of simul_type is 0 for the ith source, meaning that we emulate the output of the math model.}
+  \item{simul_nug}{a vectors of bool values meaning whether we have a nugget for emulating the math model/simulator for this source. If the math model is stochastic, we often need a nugget. If simul_Nug is TRUE, it means we have a nugget for the emulator. If simul_Nug is FALSE, it means we do not have a nugget for the emulator.}
 
-  \item{loc_index_emulator}{a list for location index to output in the ppgasp emulator  for computer models with vectorized output.
-}
+  \item{loc_index_emulator}{a list for location index to output in the ppgasp emulator  for computer models with vectorized output.}
 
 
 
 
-  \item{math_model}{a list of functions of the math models provided by the user for multiple sources. It is only useful if simul_type is 1, meaning that we know the math model and it can be computed fast. If the evaluation the math model is computationally slow, one should set simul_type to be 0 to emulate the math model. 
-}
+  \item{math_model}{a list of functions of the math models provided by the user for multiple sources. It is only useful if simul_type is 1, meaning that we know the math model and it can be computed fast. If the evaluation the math model is computationally slow, one should set simul_type to be 0 to emulate the math model.}
 
-  \item{theta_range}{a p_theta x 2 matrix of the range of the calibration parameters. The first column is the lower bound and the second column  is the upper bound. It should be specified by the user if the simul_type is 0. 
-}
+  \item{theta_range}{a p_theta x 2 matrix of the range of the calibration parameters. The first column is the lower bound and the second column  is the upper bound. It should be specified by the user if the simul_type is 0.}
 
 
-  \item{sd_proposal_theta}{a vector of the standard deviation of the proposal distribution for the calibration parameters in MCMC.
-}
-    \item{sd_proposal_cov_par}{a list of vectors of the standard deviation of the proposal distribution for range and nugget parameters in MCMC for each source.
-}
+  \item{sd_proposal_theta}{a vector of the standard deviation of the proposal distribution for the calibration parameters in MCMC.}
+    \item{sd_proposal_cov_par}{a list of vectors of the standard deviation of the proposal distribution for range and nugget parameters in MCMC for each source.}
 
 
 
-  \item{S}{an integer about about how many posterior samples to run. 
-}
-  \item{S_0}{an integer about about the number of burn-in samples. 
-}
-  \item{thinning}{the ratio between the number of posterior samples and the number of
-  recorded samples.}
+  \item{S}{an integer about about how many posterior samples to run.}
+  \item{S_0}{an integer about about the number of burn-in samples.}
+  \item{thinning}{the ratio between the number of posterior samples and the number of recorded samples.}
 
   \item{measurement_bias}{containing measurement bias or not.}
 
   \item{shared_design}{A matrix for shared design across different sources of data used 
    when measurement bias exists.}
-  \item{have_measurement_bias_recorded}{A bool value whether we record measurement bias or    not.}
+  \item{have_measurement_bias_recorded}{A bool value whether we record measurement bias or not.}
     \item{shared_X}{A matrix of shared trend when measurement bias exists.}
 
-    \item{have_shared_trend}{A bool value whether we have shared trend when measurement bias exists.}
+    \item{have_shared_trend}{A bool value whether we have shared trend when measurement bias exist.}
 
   \item{discrepancy_type}{a vector of characters about the type of the discrepancy for each source.  If it is 'no-discrepancy', it means no discrepancy function. If it is 'GaSP', it means the GaSP model for the discrepancy function. If it is 'S-GaSP', it means the S-GaSP model for the discrepancy function.}
-
 
   \item{kernel_type}{a vector of characters about the type of the discrepancy.type of kernel for each source. \code{matern_3_2} and \code{matern_5_2} are \code{Matern kernel} with roughness parameter 3/2 and 5/2 respectively. \code{pow_exp} is power exponential kernel with roughness parameter alpha. If \code{pow_exp} is to be used, one needs to specify its roughness parameter alpha.}
  \item{lambda_z}{a \code{vector} numeric values about how close the math model to the reality in squared distance when the S-GaSP model is used for modeling the discrepancy for each source.}
@@ -148,14 +134,12 @@ K. R. Anderson and M. P. Poland (2016), \emph{Bayesian estimation of magma suppl
 
 K. R. Anderson and M. P. Poland (2017), \emph{Abundant carbon in the mantle beneath Hawaii}. \emph{Nature Geoscience}, \bold{10}, 704-708.
 
-
 M. Gu (2016), \emph{Robust Uncertainty Quantification and Scalable Computation for Computer Models with Massive Output}, Ph.D. thesis., Duke University.
 
 M. Gu and L. Wang (2017) \emph{Scaled Gaussian Stochastic Process for Computer Model Calibration and Prediction}. arXiv preprint arXiv:1707.08215.
 
 M. Gu (2018) \emph{Jointly Robust Prior for Gaussian Stochastic Process in Emulation, Calibration and Variable Selection
-}. arXiv preprint arXiv:1804.09329.
-}
+}. arXiv preprint arXiv:1804.09329.}
 
 \author{
 \packageAuthor{RobustCalibration}

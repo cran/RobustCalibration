@@ -197,7 +197,7 @@ setMethod("predict_MS", "rcalibration_MS",
                               math_model=NULL,...){
             predict_MS.rcalibration_MS(object=object, testing_input=testing_input, X_testing=X_testing,
                                        testing_output_weights=testing_output_weights, n_thinning=n_thinning, 
-                                       interval_est=interval_est,interval_data=rep(F,length(testing_input)),
+                                       interval_est=interval_est,interval_data=interval_data,
                                        math_model=math_model,...)
           }
 )

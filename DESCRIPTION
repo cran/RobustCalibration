@@ -1,8 +1,8 @@
 Package: RobustCalibration
 Type: Package
 Title: Robust Calibration of Imperfect Mathematical Models
-Version: 0.5.2
-Date: 2022-01-10
+Version: 0.5.3
+Date: 2022-09-18
 Authors@R: c(person(given="Mengyang",family="Gu",role=c("aut","cre"),email="mengyang@pstat.ucsb.edu"))
 Maintainer: Mengyang Gu <mengyang@pstat.ucsb.edu>
 Author: Mengyang Gu [aut, cre]
@@ -13,6 +13,6 @@ Imports: Rcpp (>= 0.12.3), RobustGaSP (>= 0.6.4), nloptr (>= 1.0.4)
 LinkingTo: Rcpp, RcppEigen
 NeedsCompilation: yes
 Repository: CRAN
-Packaged: 2022-01-11 06:33:46 UTC; mengyanggu
+Packaged: 2022-09-18 18:56:29 UTC; mengyanggu
 RoxygenNote: 5.0.1
-Date/Publication: 2022-01-11 22:52:49 UTC
+Date/Publication: 2022-09-18 19:56:06 UTC

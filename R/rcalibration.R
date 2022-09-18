@@ -260,9 +260,12 @@ rcalibration <- function(design, observations, p_theta=NULL,X=matrix(0,dim(as.ma
     # }else if(simul_type==2 | simul_type==3){
     #   par_cur=rowMeans(theta_range)  ###current par
     # }
-    
-    par_cur=rowMeans(theta_range)  ###current par
-    
+    ##Sep 2022, allow the initial values of the theta in posterior sample
+    if(is.null(initial_values)){
+       par_cur=rowMeans(theta_range)  ###current par
+    }else{
+      par_cur=initial_values
+    }
     
     if(discrepancy_type=='no-discrepancy'){
       par_cur= c(par_cur,1) #var par
@@ -340,7 +343,8 @@ rcalibration <- function(design, observations, p_theta=NULL,X=matrix(0,dim(as.ma
 
       cat('Done optimization for the initial start ',1,'\n')
       
-      if(!class(tt_all)=="try-error"){
+      #if(!class(tt_all)=="try-error"){
+      if(class(tt_all)[1]!="try-error"){
         cat('The optimized calibration parameters are: ', tt_all$par[1:model@p_theta],'\n')
       }
       if(num_initial_values>1){
@@ -356,15 +360,16 @@ rcalibration <- function(design, observations, p_theta=NULL,X=matrix(0,dim(as.ma
           
 
           
-          if(class(tt_all)=="try-error"){
+          if(class(tt_all)[1]=="try-error"){
             tt_all=tt_all_try
-          }else if(!class(tt_all_try)=="try-error"){
+          }else if(class(tt_all_try)[1]!="try-error"){
+            
             if(tt_all$value>tt_all_try$value){
               tt_all=tt_all_try
             }
           }
           cat('Done optimization for the initial start ',i_start,'\n')
-          if(!class(tt_all)=="try-error"){
+          if(class(tt_all)[1]!="try-error"){
             cat('The optimized calibration parameters are: ', tt_all$par[1:model@p_theta],'\n')
           }else{
             cat("The optimization with the initial values leads to an error \n")
@@ -372,7 +377,7 @@ rcalibration <- function(design, observations, p_theta=NULL,X=matrix(0,dim(as.ma
         }
       }
       
-      if(class(tt_all)=="try-error"){
+      if(class(tt_all)[1]=="try-error"){
         #sink()
         stop(tt_all)
       }
@@ -446,7 +451,7 @@ rcalibration <- function(design, observations, p_theta=NULL,X=matrix(0,dim(as.ma
       
       cat('Done optimization for the initial start ',1,'. \n')
       
-      if(!class(tt_all)=="try-error"){
+      if(class(tt_all)[1]!="try-error"){
         cat('The optimized calibration parameters are: ', tt_all$par[1:model@p_theta],'\n')
         cat('The optimized range and nugget parameters are: ',c(1/exp(tt_all$par[(model@p_theta+1):(model@p_theta+model@p_x)]),
                                                                 exp(tt_all$par[model@p_theta+model@p_x+1])),'\n')
@@ -463,15 +468,15 @@ rcalibration <- function(design, observations, p_theta=NULL,X=matrix(0,dim(as.ma
                                           lower=lower,upper=upper,only_value=T,nl.info = FALSE),TRUE)
           
           
-          if(class(tt_all)=="try-error"){
+          if(class(tt_all)[1]=="try-error"){
             tt_all=tt_all_try
-          }else if(!class(tt_all_try)=="try-error"){
+          }else if(class(tt_all_try)[1]!="try-error"){
             if(tt_all$value>tt_all_try$value){
               tt_all=tt_all_try
             }
           }
           paste('Done optimization for the initial start ',i_start,'\n')
-          if(!class(tt_all)=="try-error"){
+          if(class(tt_all)[1]!="try-error"){
             cat('The optimized calibration parameters are: ', tt_all$par[1:model@p_theta],'\n')
             cat('The optimized range and nugget parameters are: ',c(1/exp(tt_all$par[(model@p_theta+1):(model@p_theta+model@p_x)]),
                                                                     exp(tt_all$par[model@p_theta+model@p_x+1])),'\n')
@@ -482,7 +487,7 @@ rcalibration <- function(design, observations, p_theta=NULL,X=matrix(0,dim(as.ma
       }
       
       
-      if(class(tt_all)=="try-error"){
+      if(class(tt_all)[1]=="try-error"){
         #sink()
         stop(tt_all)
       }

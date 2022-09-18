@@ -600,7 +600,9 @@ post_sample_MS <- function(model,par_cur_theta, par_cur_individual, emulator,mat
                                                                        individual_par_cur[[i]]),
                                                                      model@output[[i]],length(model@index_theta[[i]]),
                                                                      model@X[[i]],
-                                                                     model@have_trend[i],1/model@output_weights[[i]],cm_obs_cur[[i]],0,0 );
+                                                                     model@have_trend[i],1/model@output_weights[[i]],cm_obs_cur[[i]],0,model@num_obs[i] );
+        #Sample_sigma_2_theta_m_no_discrepancy(par_cur,output,p_theta,X,have_trend, inv_output_weights,cm_obs_cur,S_2_f,num_obs_all);
+        
         individual_par_cur[[i]]=sigma_2_theta_m_sample
 
         post_cur[i]=Log_marginal_post_no_discrepancy(c(theta_cur[model@index_theta[[i]]],
@@ -887,8 +889,6 @@ post_sample_MS_with_measurement_bias <- function(model,par_cur_theta, par_cur_in
      }
   }
 
-  record_model_bias=matrix(0,record_S,num_obs);
-
   ## range parameter and the variance parameter of the shared bias
   record_par_individual[[model@num_sources+1]]=matrix(0,record_S,model@p_x[model@num_sources+1]+1)
 
@@ -906,7 +906,19 @@ post_sample_MS_with_measurement_bias <- function(model,par_cur_theta, par_cur_in
   #MatrixXd L;
   L=as.list(rep(0,model@num_sources))
   L_propose=L
-
+  
+  cm_obs_cur=as.list(rep(0,model@num_sources))
+  tilde_output_cur=as.list(rep(0,model@num_sources))
+  
+  cm_obs_propose=cm_obs_cur
+  
+  
+  for(i in 1:model@num_sources){
+    cm_obs_cur[[i]]=mathematical_model_eval(model@input[[i]],par_cur_theta[model@index_theta[[i]]],model@simul_type[i],emulator[[i]], 
+                                            model@emulator_type[i],model@loc_index_emulator[[i]],math_model_MS[[i]]);
+    tilde_output_cur[[i]]=model@output[[i]]- cm_obs_cur[[i]]  ##here assume zero mean parameter
+  }
+  
   ###well, then I need to update this
   ##I will add R here, only support a GP here
 
@@ -938,53 +950,29 @@ post_sample_MS_with_measurement_bias <- function(model,par_cur_theta, par_cur_in
     }
   }
 
-  ##initial value of lambda_z_cur for discrepancy
-  #lambda_z_cur[num_sources_1]=sqrt(10*sqrt(sum(1/(exp(xi_initial)*length_input[[num_sources_1]])^2)) /(exp(log_eta_intial)/model@num_obs[num_sources_1]))
-  lambda_z_cur[num_sources_1]=sqrt(sqrt(sum((exp(xi_initial)*length_input[[num_sources_1]])^2)) /(exp(log_eta_intial)/model@num_obs[num_sources_1]))
+  delta_sample=0
   
-
-  ##need to have two, one for GP, one for SGP
-  cov_inv_all=Get_inv_all(par_cur_individual, lambda_z_cur, is_SGaSP,model@R0,  model@kernel_type, model@alpha, model@p_x, model@num_sources)
-
-  ###check this is correct
-  #R_5=separable_kernel(model@R0[[5]], exp(par_cur_individual[[5]][1:model@p_x[5]]), model@kernel_type[5],model@alpha[[5]])
-  #diag(cov_inv_all[[5]]%*%(R_5+exp(par_cur_individual[[5]][1+model@p_x[5]])*diag(model@num_obs[5])))
-
-
-  #L_delta=Get_R_new(par_cur_individual,exp(par_cur_individual[[num_sources_1]][model@p_x[num_sources_1]+1]),
-  #                 model@R0[[num_sources_1]],model@kernel_type[num_sources_1],model@alpha[[num_sources_1]], all_one_vec);
-
-  cm_obs_cur=as.list(rep(0,model@num_sources))
-  tilde_output_cur=as.list(rep(0,model@num_sources))
-
-  cm_obs_propose=cm_obs_cur
-
-
-  for(i in 1:model@num_sources){
-    cm_obs_cur[[i]]=mathematical_model_eval(model@input[[i]],par_cur_theta[model@index_theta[[i]]],model@simul_type[i],emulator[[i]], 
-                                            model@emulator_type[i],model@loc_index_emulator[[i]],math_model_MS[[i]]);
-    tilde_output_cur[[i]]=model@output[[i]]- cm_obs_cur[[i]]  ##here assume zero mean parameter
+  if(model@discrepancy_type[num_sources_1]!='no-discrepancy'){
+    record_model_bias=matrix(0,record_S,num_obs);
+    
+    ##initial value of lambda_z_cur for discrepancy
+    #lambda_z_cur[num_sources_1]=sqrt(10*sqrt(sum(1/(exp(xi_initial)*length_input[[num_sources_1]])^2)) /(exp(log_eta_intial)/model@num_obs[num_sources_1]))
+    #lambda_z_cur[num_sources_1]=sqrt(sqrt(sum((exp(xi_initial)*length_input[[num_sources_1]])^2)) /(exp(log_eta_intial)/model@num_obs[num_sources_1]))
+    lambda_z_cur[num_sources_1]=model@lambda_z[[num_sources_1]][1]  ##assumed it is given
+  
+    ##need to have two, one for GP, one for SGP
+    cov_inv_all=Get_inv_all(par_cur_individual, lambda_z_cur, is_SGaSP,model@R0,  model@kernel_type, model@alpha, model@p_x, model@num_sources)
+  
+    ###check this is correct
+    #R_5=separable_kernel(model@R0[[5]], exp(par_cur_individual[[5]][1:model@p_x[5]]), model@kernel_type[5],model@alpha[[5]])
+    #diag(cov_inv_all[[5]]%*%(R_5+exp(par_cur_individual[[5]][1+model@p_x[5]])*diag(model@num_obs[5])))
+  
+    
+    delta_sample=Sample_delta(cov_inv_all, tilde_output_cur,    par_cur_individual,model@p_x,
+                              model@num_sources,
+                              num_obs,  rnorm(num_obs))
   }
-
-  delta_sample=Sample_delta(cov_inv_all, tilde_output_cur,    par_cur_individual,model@p_x,
-                            model@num_sources,
-                            num_obs,  rnorm(num_obs))
-
-
-
-  #quilt.plot(x=(model@input[[num_sources_1]][,1]), y=(model@input[[num_sources_1]][,2]),
-  #           z=tilde_output_cur[[1]],nrow = 80, ncol = 80)
-  #quilt.plot(x=(model@input[[num_sources_1]][,1]), y=(model@input[[num_sources_1]][,2]),
-  #           z=delta_sample+cm_obs_cur[[2]],nrow = 80, ncol = 80)
-
-
-  #quilt.plot(x=(model@input[[num_sources_1]][,1]), y=(model@input[[num_sources_1]][,2]),
-  #           z= record_measurement_bias[[2]][floor(i_S/model@thinning), ],nrow = 80, ncol = 80)
-
-  ##record_measurement_bias[[i]][floor(i_S/model@thinning), ]
-  #plot(model@input[[num_sources_1]],delta_sample,ylim=c(-1,0.5))
-  #lines(model@input[[num_sources_1]],delta_model,type='p')
-
+  
   accept_S_theta=0;
   accept_S_delta=0;
 
@@ -1089,7 +1077,7 @@ post_sample_MS_with_measurement_bias <- function(model,par_cur_theta, par_cur_in
                                           model@have_trend[i],
                                           model@prior_par[[i]][1:model@p_x[i]],
                                           model@prior_par[[i]][model@p_x[i]+1],
-
+                                          model@prior_par[[i]][model@p_x[i]+2],
                                           cm_obs_cur[[i]],0,model@num_obs[i] );
 
 
@@ -1153,12 +1141,13 @@ post_sample_MS_with_measurement_bias <- function(model,par_cur_theta, par_cur_in
         cm_obs_propose[[i]]=mathematical_model_eval(model@input[[i]],theta_sample[model@index_theta[[i]]],model@simul_type[i],emulator[[i]],
                                                     model@emulator_type[i],model@loc_index_emulator[[i]],math_model_MS[[i]]);
 
-        if(model@discrepancy_type[i]=='no-discrepancy'){
-          post_propose[i]=Log_marginal_post_no_discrepancy(c(theta_sample[model@index_theta[[i]]],
-                                                             individual_par_cur[[i]]),model@output[[i]]-delta_sample,length(model@index_theta[[i]]),
-                                                           model@X[[i]],
-                                                           model@have_trend[i],1/model@output_weights[[i]],cm_obs_propose[[i]],0,model@num_obs[i] );
-        }else{
+        #if(model@discrepancy_type[i]=='no-discrepancy'){
+        #  post_propose[i]=Log_marginal_post_no_discrepancy(c(theta_sample[model@index_theta[[i]]],
+        #                                                     individual_par_cur[[i]]),model@output[[i]]-delta_sample,length(model@index_theta[[i]]),
+        #                                                   model@X[[i]],
+        #                                                   model@have_trend[i],1/model@output_weights[[i]],cm_obs_propose[[i]],0,model@num_obs[i] );
+        #}else{
+          
           post_propose[i]=Log_marginal_post(c(theta_sample[model@index_theta[[i]]],
                                               individual_par_cur[[i]]),L[[i]],
                                             model@output[[i]]-delta_sample,
@@ -1170,7 +1159,7 @@ post_sample_MS_with_measurement_bias <- function(model,par_cur_theta, par_cur_in
                                             model@prior_par[[i]][model@p_x[i]+2],
                                             cm_obs_propose[[i]],0,model@num_obs[i] );
 
-        }
+        #}
 
 
       }
@@ -1202,144 +1191,151 @@ post_sample_MS_with_measurement_bias <- function(model,par_cur_theta, par_cur_in
 
     ##done sample theta
 
-    ##3 sample the parameter for delta, only variance
-    S_delta=t(delta_sample)%*%cov_inv_all[[num_sources_1]]%*%delta_sample
-
-
-    inv_var_delta=rgamma(1,shape=num_obs/2, scale=2/S_delta)
-
-
-    individual_par_cur[[num_sources_1]][ (model@p_x[num_sources_1]+1)]=1/inv_var_delta
-
-
-    ##sample range par
-    if(is_SGaSP[num_sources_1]==0){
-      L_delta=Get_R_new(exp(individual_par_cur[[num_sources_1]][1:model@p_x[num_sources_1]]),0,
-                        model@R0[[num_sources_1]],model@kernel_type[num_sources_1],model@alpha[[num_sources_1]],
-                        rep(1,num_obs));
-    }else{
-
-      L_delta=Get_R_z_new(exp(individual_par_cur[[num_sources_1]][1:model@p_x[num_sources_1]]),0,lambda_z_cur[num_sources_1],
-                        model@R0[[num_sources_1]],model@kernel_type[num_sources_1],model@alpha[[num_sources_1]],
-                        rep(1,num_obs));
-
-    }
-
-   log_post_delta_cur= Log_marginal_post_delta(individual_par_cur[[num_sources_1]],L_delta,
-                      delta_sample,
-                      model@p_x[num_sources_1],
-                      model@prior_par[[num_sources_1]][1:model@p_x[num_sources_1]],
-                      model@prior_par[[num_sources_1]][model@p_x[num_sources_1]+1],
-                      model@prior_par[[num_sources_1]][model@p_x[num_sources_1]+2]);
-
-
-    #//sample xi
-    xi_sample=rep(0,model@p_x[num_sources_1])
-
-    for(i_x in 1: model@p_x[num_sources_1]){
-      xi_sample[i_x]=individual_par_cur[[num_sources_1]][i_x]+model@sd_proposal_cov_par[[num_sources_1]][i_x]*rnorm(1);
-      #distribution_stan_norm(generator);
-    }
-
-    individual_par_propose=individual_par_cur[[num_sources_1]]
-    individual_par_propose[1:model@p_x[num_sources_1]]=(xi_sample)
-
-    ##here I add something
-    R_propose_delta=separable_kernel(model@R0[[num_sources_1]], exp(individual_par_propose[1:model@p_x[num_sources_1]]),
-                                     model@kernel_type[num_sources_1],model@alpha[[num_sources_1]])
-    ##too large then I wouldn't update
-    if(kappa(R_propose_delta)<10^15){
-
-    #if(is_SGaSP[num_sources_1]==1){
-    #  R_propose_delta=solve(solve(R_propose_delta)+lambda_z[num_sources_1]*diag(num_obs))
-    #}
-
-
+    if(model@discrepancy_type[num_sources_1]!='no-discrepancy'){
+      ##3 sample the parameter for delta, only variance
+      S_delta=t(delta_sample)%*%cov_inv_all[[num_sources_1]]%*%delta_sample
+  
+  
+      inv_var_delta=rgamma(1,shape=num_obs/2, scale=2/S_delta)
+  
+  
+      individual_par_cur[[num_sources_1]][ (model@p_x[num_sources_1]+1)]=1/inv_var_delta
+  
+  
+      ##sample range par
       if(is_SGaSP[num_sources_1]==0){
-        L_delta_propose=Get_R_new(exp(individual_par_propose[1:model@p_x[num_sources_1]]),0,
+        L_delta=Get_R_new(exp(individual_par_cur[[num_sources_1]][1:model@p_x[num_sources_1]]),0,
                           model@R0[[num_sources_1]],model@kernel_type[num_sources_1],model@alpha[[num_sources_1]],
                           rep(1,num_obs));
       }else{
-
-          if(is.na(model@lambda_z[[num_sources_1]][i_S])){
-            #lambda_z_propose=sqrt( min(exp(xi_sample)*length_input)/(exp(log_eta_sample)/num_obs_all))
-            #lambda_z_propose[num_sources_1]=sqrt(10*sqrt(sum(1/(exp(xi_sample)*length_input[[num_sources_1]])^2)) /(exp(log_eta_sample)/model@num_obs[num_sources_1]))
-            lambda_z_propose[num_sources_1]=sqrt(sqrt(sum((exp(xi_sample)*length_input[[num_sources_1]])^2)) /(exp(log_eta_sample)/model@num_obs[num_sources_1]))
-            
-          }else{
-            lambda_z_propose[num_sources_1]=model@lambda_z[[num_sources_1]][i_S]
-          }
-
-        L_delta_propose=Get_R_z_new(exp(individual_par_propose[1:model@p_x[num_sources_1]]),0,lambda_z_propose[i],
-                                  model@R0[[num_sources_1]],model@kernel_type[num_sources_1],model@alpha[[num_sources_1]],
-                                  rep(1,num_obs));
-
+  
+        L_delta=Get_R_z_new(exp(individual_par_cur[[num_sources_1]][1:model@p_x[num_sources_1]]),0,lambda_z_cur[num_sources_1],
+                          model@R0[[num_sources_1]],model@kernel_type[num_sources_1],model@alpha[[num_sources_1]],
+                          rep(1,num_obs));
+        
+        #L_propose[[i]]=Get_R_z_new(exp(individual_par_propose[1:model@p_x[i]]),
+         #                          exp(individual_par_propose[model@p_x[i]+1]),
+        #                           lambda_z_propose[i],model@R0[[i]],model@kernel_type[i],
+         #                          model@alpha[[i]], 1/model@output_weights[[i]] );
+        
+  
       }
-
-      log_post_delta_propose= Log_marginal_post_delta(individual_par_propose,L_delta_propose,
-                                                 delta_sample,
-                                                 model@p_x[num_sources_1],
-                                                 model@prior_par[[num_sources_1]][1:model@p_x[num_sources_1]],
-                                                 model@prior_par[[num_sources_1]][model@p_x[num_sources_1]+1],
-                                                 model@prior_par[[num_sources_1]][model@p_x[num_sources_1]+2]);
-      r_ratio=exp(log_post_delta_propose-log_post_delta_cur);
-      decision=Accept_proposal(r_ratio);
-
-
-      if(decision){
-        if(model@discrepancy_type[num_sources_1]=='S-GaSP'){
-          if(is.na(model@lambda_z[[num_sources_1]][i_S])){
-            lambda_z_cur[num_sources_1]=lambda_z_propose[num_sources_1]
-          }else{
-            lambda_z_cur[num_sources_1]=model@lambda_z[[num_sources_1]][i_S]
-          }
+  
+     log_post_delta_cur= Log_marginal_post_delta(individual_par_cur[[num_sources_1]],L_delta,
+                        delta_sample,
+                        model@p_x[num_sources_1],
+                        model@prior_par[[num_sources_1]][1:model@p_x[num_sources_1]],
+                        model@prior_par[[num_sources_1]][model@p_x[num_sources_1]+1],
+                        model@prior_par[[num_sources_1]][model@p_x[num_sources_1]+2]);
+  
+  
+      #//sample xi
+      xi_sample=rep(0,model@p_x[num_sources_1])
+  
+      for(i_x in 1: model@p_x[num_sources_1]){
+        xi_sample[i_x]=individual_par_cur[[num_sources_1]][i_x]+model@sd_proposal_cov_par[[num_sources_1]][i_x]*rnorm(1);
+        #distribution_stan_norm(generator);
+      }
+  
+      individual_par_propose=individual_par_cur[[num_sources_1]]
+      individual_par_propose[1:model@p_x[num_sources_1]]=(xi_sample)
+  
+      ##here I add something
+      R_propose_delta=separable_kernel(model@R0[[num_sources_1]], exp(individual_par_propose[1:model@p_x[num_sources_1]]),
+                                       model@kernel_type[num_sources_1],model@alpha[[num_sources_1]])
+      ##too large then I wouldn't update
+      if(kappa(R_propose_delta)<10^15){
+  
+      #if(is_SGaSP[num_sources_1]==1){
+      #  R_propose_delta=solve(solve(R_propose_delta)+lambda_z[num_sources_1]*diag(num_obs))
+      #}
+  
+  
+        if(is_SGaSP[num_sources_1]==0){
+          L_delta_propose=Get_R_new(exp(individual_par_propose[1:model@p_x[num_sources_1]]),0,
+                            model@R0[[num_sources_1]],model@kernel_type[num_sources_1],model@alpha[[num_sources_1]],
+                            rep(1,num_obs));
+        }else{
+  
+            if(is.na(model@lambda_z[[num_sources_1]][i_S])){
+              #lambda_z_propose=sqrt( min(exp(xi_sample)*length_input)/(exp(log_eta_sample)/num_obs_all))
+              #lambda_z_propose[num_sources_1]=sqrt(10*sqrt(sum(1/(exp(xi_sample)*length_input[[num_sources_1]])^2)) /(exp(log_eta_sample)/model@num_obs[num_sources_1]))
+              lambda_z_propose[num_sources_1]=sqrt(sqrt(sum((exp(xi_sample)*length_input[[num_sources_1]])^2)) /(exp(log_eta_sample)/model@num_obs[num_sources_1]))
+              
+            }else{
+              lambda_z_propose[num_sources_1]=model@lambda_z[[num_sources_1]][i_S]
+            }
+  
+          L_delta_propose=Get_R_z_new(exp(individual_par_propose[1:model@p_x[num_sources_1]]),0,lambda_z_propose[num_sources_1],
+                                    model@R0[[num_sources_1]],model@kernel_type[num_sources_1],model@alpha[[num_sources_1]],
+                                    rep(1,num_obs));
+  
         }
-
-        individual_par_cur[[num_sources_1]]=individual_par_propose;
-       # post_cur=post_propose;
-       # cm_obs_cur=cm_obs_propose;
-        accept_S_delta=accept_S_delta+1;
-
-        #cat(par_cur,'\n')
-
+  
+        log_post_delta_propose= Log_marginal_post_delta(individual_par_propose,L_delta_propose,
+                                                   delta_sample,
+                                                   model@p_x[num_sources_1],
+                                                   model@prior_par[[num_sources_1]][1:model@p_x[num_sources_1]],
+                                                   model@prior_par[[num_sources_1]][model@p_x[num_sources_1]+1],
+                                                   model@prior_par[[num_sources_1]][model@p_x[num_sources_1]+2]);
+        r_ratio=exp(log_post_delta_propose-log_post_delta_cur);
+        decision=Accept_proposal(r_ratio);
+  
+  
+        if(decision){
+          if(model@discrepancy_type[num_sources_1]=='S-GaSP'){
+            if(is.na(model@lambda_z[[num_sources_1]][i_S])){
+              lambda_z_cur[num_sources_1]=lambda_z_propose[num_sources_1]
+            }else{
+              lambda_z_cur[num_sources_1]=model@lambda_z[[num_sources_1]][i_S]
+            }
+          }
+  
+          individual_par_cur[[num_sources_1]]=individual_par_propose;
+         # post_cur=post_propose;
+         # cm_obs_cur=cm_obs_propose;
+          accept_S_delta=accept_S_delta+1;
+  
+          #cat(par_cur,'\n')
+  
+        }
+  
+  
+  
+        if(i_S%%model@thinning==0){
+  
+           record_par_individual[[num_sources_1]][floor(i_S/model@thinning),]=individual_par_cur[[num_sources_1]]
+  
+           if(model@discrepancy_type[num_sources_1]=='S-GaSP'){
+             lambda_z_record[[num_sources_1]][floor(i_S/model@thinning)]=lambda_z_cur[num_sources_1];
+           }
+  
+        }
       }
-
-
-
+      ##need to redo sample delta and compute all inv
+      ##need to have two, one for GP, one for SGP
+      cov_inv_all=Get_inv_all(individual_par_cur, lambda_z_cur, is_SGaSP, model@R0,  model@kernel_type, model@alpha, model@p_x, model@num_sources)
+  
+      for(i in 1:model@num_sources){
+        cm_obs_cur[[i]]=mathematical_model_eval(model@input[[i]],theta_cur[model@index_theta[[i]]],model@simul_type[i],emulator[[i]],
+                                                model@emulator_type[i],model@loc_index_emulator[[i]],math_model_MS[[i]]);
+        tilde_output_cur[[i]]=model@output[[i]]- cm_obs_cur[[i]]  ##here assume zero mean parameter
+      }
+  
+      delta_sample=Sample_delta(cov_inv_all, tilde_output_cur,    individual_par_cur,model@p_x,
+                                model@num_sources,
+                                num_obs,  rnorm(num_obs))
+  
+  
+      #if(i_S%%100==1){
+      #  quilt.plot(x=(model@input[[num_sources_1]][,1]), y=(model@input[[num_sources_1]][,2]),
+      #             z=delta_sample,nrow = 80, ncol = 80)
+      #}
+  
       if(i_S%%model@thinning==0){
-
-         record_par_individual[[num_sources_1]][floor(i_S/model@thinning),]=individual_par_cur[[num_sources_1]]
-
-         if(model@discrepancy_type[num_sources_1]=='S-GaSP'){
-           lambda_z_record[[num_sources_1]][floor(i_S/model@thinning)]=lambda_z_cur[i];
-         }
-
+        record_model_bias[floor(i_S/model@thinning),]=delta_sample
       }
     }
-    ##need to redo sample delta and compute all inv
-    ##need to have two, one for GP, one for SGP
-    cov_inv_all=Get_inv_all(individual_par_cur, model@lambda_z, is_SGaSP, model@R0,  model@kernel_type, model@alpha, model@p_x, model@num_sources)
-
-    for(i in 1:model@num_sources){
-      cm_obs_cur[[i]]=mathematical_model_eval(model@input[[i]],theta_cur[model@index_theta[[i]]],model@simul_type[i],emulator[[i]],
-                                              model@emulator_type[i],model@loc_index_emulator[[i]],math_model_MS[[i]]);
-      tilde_output_cur[[i]]=model@output[[i]]- cm_obs_cur[[i]]  ##here assume zero mean parameter
-    }
-
-    delta_sample=Sample_delta(cov_inv_all, tilde_output_cur,    individual_par_cur,model@p_x,
-                              model@num_sources,
-                              num_obs,  rnorm(num_obs))
-
-
-    #if(i_S%%100==1){
-    #  quilt.plot(x=(model@input[[num_sources_1]][,1]), y=(model@input[[num_sources_1]][,2]),
-    #             z=delta_sample,nrow = 80, ncol = 80)
-    #}
-
-    if(i_S%%model@thinning==0){
-      record_model_bias[floor(i_S/model@thinning),]=delta_sample
-    }
-
 
     ###record the measurement_bias, need to sample that
     if(model@have_measurement_bias_recorded==T){
@@ -1365,8 +1361,12 @@ post_sample_MS_with_measurement_bias <- function(model,par_cur_theta, par_cur_in
   #mylist$individual_par=record_par_individual
   ####I need to have a matrix
   mylist$individual_par=record_par_individual
-
-  mylist$record_model_bias=record_model_bias
+  if(model@discrepancy_type[num_sources_1]!='no-discrepancy'){
+      mylist$record_model_bias=record_model_bias
+  }else{
+     mylist$record_model_bias=matrix(0,1,num_obs);
+  }
+  
   mylist$record_measurement_bias=record_measurement_bias
 
 

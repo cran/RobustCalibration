@@ -15,7 +15,9 @@ rcalibration_MS <- function(design, observations, p_theta=NULL, index_theta=NULL
                             shared_X=0,have_shared_trend=FALSE,
                             discrepancy_type=rep('S-GaSP',length(design)+measurement_bias),
                             kernel_type=rep('matern_5_2',length(design)+measurement_bias),
-                            lambda_z=list(NA),  a=NULL,b=NULL,alpha=NULL,
+                            lambda_z=as.list(rep(NA,length(design)+measurement_bias)),
+                            #lambda_z=list(NA), 
+                            a=NULL,b=NULL,alpha=NULL,
                             output_weights=NULL){
   
   
@@ -56,6 +58,11 @@ rcalibration_MS <- function(design, observations, p_theta=NULL, index_theta=NULL
     if(is.null(shared_design)){
       stop("Please specify shared_design \n")
     }
+   for(i_source in 1:num_sources){
+     if(discrepancy_type[i_source]!='GaSP' & discrepancy_type[i_source]!='S-GaSP'){
+       stop("the measurement bias should either be GaSP or S-GaSP \n")
+     }
+   }
   }
 
   model@p_x=rep(0,num_sources+measurement_bias)
@@ -227,36 +234,56 @@ rcalibration_MS <- function(design, observations, p_theta=NULL, index_theta=NULL
   }
   
   
+  model@lambda_z=as.list(1:(num_sources+measurement_bias))
   
-  if(is.na(lambda_z[[1]][1])){ ##this is comment case
-    model@lambda_z=as.list(1:(num_sources+measurement_bias))
-    for(i in 1:num_sources){
+  for(i in 1:num_sources){
+    if(is.na(lambda_z[[i]][1])){ ##this is comment case
       if(discrepancy_type[i]=='S-GaSP'){
         model@lambda_z[[i]]=rep(NA,S) ##this is to sample lambda_z
       }
-    }
-    if(measurement_bias){
-      if(discrepancy_type[num_sources+1]=='S-GaSP'){
-        model@lambda_z[[num_sources+1]]=rep(NA,S) ##
-      }
-    }
-  }else{
-    if(length(lambda_z[[1]])==1){  ## a list of constant
-      for(i in 1:num_sources){
-        model@lambda_z[[i]]=rep(lambda_z[[i]],S) ##user may only give a value
-      }
-      if(measurement_bias){
-        model@lambda_z[[num_sources+1]]=rep(lambda_z[[num_sources+1]],S) ##
-      }
     }else{
-      for(i in 1:num_sources){
-        model@lambda_z[[i]]=as.vector(lambda_z[[i]])
-      }
-      if(measurement_bias){
-        model@lambda_z[[num_sources+1]]=as.vector(lambda_z[[num_sources+1]])
+      if(length(lambda_z[[i]])==1){  ## a list of constant
+          model@lambda_z[[i]]=rep(lambda_z[[i]],S) ##user may only give a value
+      }else{
+          model@lambda_z[[i]]=as.vector(lambda_z[[i]])
       }
     }
   }
+  if(measurement_bias){
+    if(discrepancy_type[num_sources+1]=='S-GaSP'){ ##use a fixed lambda_z first?
+      if(is.na(lambda_z[[num_sources+1]][1])){ ##this is comment case
+          model@lambda_z[[num_sources+1]]=rep(100*sqrt(length(model@output[[1]]) ),S) ##fix to be constant for multicalibration with measurement bias
+      }else{
+        if(length(lambda_z[[num_sources+1]])==1){  ## a list of constant
+          model@lambda_z[[num_sources+1]]=rep(lambda_z[[num_sources+1]],S) ##user may only give a value
+        }else{
+          model@lambda_z[[num_sources+1]]=as.vector(lambda_z[[num_sources+1]])
+        }
+      }
+    }
+  }
+  # if(measurement_bias){
+  #     if(discrepancy_type[num_sources+1]=='S-GaSP'){
+  #       model@lambda_z[[num_sources+1]]=rep(NA,S) ##
+  #     }
+  #   }
+  # }else{
+  #   if(length(lambda_z[[1]])==1){  ## a list of constant
+  #     for(i in 1:num_sources){
+  #       model@lambda_z[[i]]=rep(lambda_z[[i]],S) ##user may only give a value
+  #     }
+  #     if(measurement_bias){
+  #       model@lambda_z[[num_sources+1]]=rep(lambda_z[[num_sources+1]],S) ##
+  #     }
+  #   }else{
+  #     for(i in 1:num_sources){
+  #       model@lambda_z[[i]]=as.vector(lambda_z[[i]])
+  #     }
+  #     if(measurement_bias){
+  #       model@lambda_z[[num_sources+1]]=as.vector(lambda_z[[num_sources+1]])
+  #     }
+  #   }
+  # }
   #model@lambda_z=lambda_z
   
 
@@ -357,7 +384,9 @@ rcalibration_MS <- function(design, observations, p_theta=NULL, index_theta=NULL
   }
   
   
-  start_S=floor((S_0+1)/thinning)+1
+  #start_S=floor((S_0+1)/thinning)+1
+  start_S=floor((S_0)/thinning)+1
+  
   end_S=floor(S/thinning)
     #dim(sample_list[[1]])[1]
   
@@ -380,7 +409,11 @@ rcalibration_MS <- function(design, observations, p_theta=NULL, index_theta=NULL
   
   if(measurement_bias==T){
     model@post_individual_par[[model@num_sources+1]]=as.matrix(sample_list$individual_par[[model@num_sources+1]][start_S:end_S,]) 
-     model@post_delta=sample_list$record_model_bias[start_S:end_S,] 
+    if(model@discrepancy_type[num_sources+1]!='no-discrepancy'){
+      model@post_delta=sample_list$record_model_bias[start_S:end_S,] 
+    }else{
+      model@post_delta=sample_list$record_model_bias
+    }
      if(have_measurement_bias_recorded==T){
        for(i in 1:num_sources){
          model@post_measurement_bias[[i]]=sample_list$record_measurement_bias[[i]][start_S:end_S,] 
