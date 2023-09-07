@@ -23,8 +23,8 @@ Function to make prediction on Robust Calibration models after the rcalibration 
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{an object of  class \code{rcalibration_MS}.}
-  \item{testing_input}{a list of matrices containing the inputs where the \code{predict_MS} is to perform prediction.}
-  \item{X_testing}{a list of matrices of mean/trend for prediction if specified.}
+  \item{testing_input}{a list of matrices containing the inputs where the \code{predict_MS} is to perform prediction. Each element of the list is a matrix of testing inputs for the corresponding source of data. The number of rows of the matrix is equal to the number of predictive outputs for the corresponding source. }
+  \item{X_testing}{a list of matrices of mean/trend for prediction if specified.  The number of rows of the matrix is equal to the number of predictive outputs for the corresponding source.}
   \item{testing_output_weights}{a list of vecots for the weight of testing outputs for multiple sources.}
   \item{n_thinning}{number of points further thinning the MCMC posterior samples.}
     \item{interval_est}{a list of vectors for the posterior predctive credible interval for multiple sources. If interval_est is NULL, we do  not compute the posterior credible interval.  It can be specified as a vector of values ranging from zero to one. E.g.  }

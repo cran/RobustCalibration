@@ -14,6 +14,7 @@ Objects of this class are created and initialized with the function \code{\link{
     \item{\code{mean}:}{object of class \code{vector}. The predictive mean at testing inputs combing the mathematical model and discrepancy function.}
     \item{\code{math_model_mean}:}{object of class \code{vector}. The predictive mean at testing inputs using only the mathematical model (and the trend if specified).}
     \item{\code{math_model_mean_no_trend}:}{object of class \code{vector}. The predictive mean at testing inputs using only the mathematical model without the trend.}
+    \item{\code{delta}:}{object of class \code{vector}. The predictive discrepancy function.}
     \item{\code{interval}:}{object of class \code{matrix}.  The upper and lower predictive credible interval. If interval_data is TRUE in the \code{\link{predict.rcalibration}}, the experimental noise is included for computing the predictive credible interval. }
 
     }

@@ -141,6 +141,9 @@ predict.rcalibration<-function(object, testing_input, X_testing=NULL,
       }
       
       record_pred_mean=0
+      ##Sep 2023, include delta
+      record_delta=0
+      
       
       SS=floor(dim(object@post_sample)[1]/n_thinning)
       
@@ -221,7 +224,9 @@ predict.rcalibration<-function(object, testing_input, X_testing=NULL,
         record_cm_pred_no_trend=record_cm_pred_no_trend+mean_cm_test_no_trend
         
         record_pred_mean=record_pred_mean+pred_mean
-        
+        ##Sep 2023, include delta
+        record_delta=record_delta+(pred_mean-mean_cm_test)
+          
         if(!is.null(interval_est)){
           if(object@discrepancy_type=="GaSP"){
             R_tilde_inv_r=(backsolve(t(L),forwardsolve(L, r )))
@@ -284,10 +289,14 @@ predict.rcalibration<-function(object, testing_input, X_testing=NULL,
       record_cm_pred=record_cm_pred/floor(SS)
       record_pred_mean=record_pred_mean/floor(SS)
       record_cm_pred_no_trend=record_cm_pred_no_trend/floor(SS)
-      
+      ##Sep 2023, include delta
+      record_delta=record_delta/floor(SS)
+        
       predictobj@math_model_mean=record_cm_pred
       predictobj@math_model_mean_no_trend=record_cm_pred_no_trend
       predictobj@mean=record_pred_mean
+      ##Sep 2023, include delta
+      predictobj@delta=record_delta
       
       
       if(!is.null(interval_est)){

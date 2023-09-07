@@ -21,7 +21,7 @@ Function to make prediction on Robust Calibration models after the rcalibration 
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{an object of  class \code{rcalibration}.}
-  \item{testing_input}{a matrix containing the inputs where the \code{predict} is to perform prediction.}
+  \item{testing_input}{a matrix containing the inputs where the \code{predict} is to perform prediction. To predict one observable input with multiple dimension, user should supply a row vector. }
   \item{X_testing}{a matrix of mean/trend for prediction.}
   \item{n_thinning}{number of points further thinning the MCMC posterior samples.}
   \item{testing_output_weights}{the weight of testing outputs.}

@@ -28,19 +28,19 @@ Setting up the Calibration model for estimating the parameters via MCMC for mult
                   kernel_type=rep('matern_5_2',length(design)+measurement_bias),
                   lambda_z=as.list(rep(NA,length(design)+measurement_bias)),
                   a=NULL,b=NULL,alpha=NULL,
-                  output_weights=NULL)
+                  output_weights=NULL,...)
  % \S4method{show}{rgasp}(object)    
       
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{design}{a list of observed inputs from multiple sources.
+  \item{design}{a list of observed inputs from multiple sources. Each element of the list is a matrix of observable inputs, where each row is a row vector of observable inputs corresponding to one observation and the number of field or experimental data is the total number of rows. 
 %%     ~~Describe \code{design} here~~
 }
-  \item{observations}{ a list of experimental data from multiple sources.
+  \item{observations}{a list of experimental data from multiple sources. Each element is a vector of observations. 
 %%     ~~Describe \code{response} here~~
 }
-  \item{index_theta}{ a list of vectors for the index of calibration parameter contained in each source.
+  \item{index_theta}{a list of vectors for the index of calibration parameter contained in each source.
 %%     ~~Describe \code{response} here~~
 }
   \item{p_theta}{an integer about the number of parameters, which should be specified by the user. 
@@ -66,7 +66,7 @@ Setting up the Calibration model for estimating the parameters via MCMC for mult
 
 
 
-  \item{math_model}{a list of functions of the math models provided by the user for multiple sources. It is only useful if simul_type is 1, meaning that we know the math model and it can be computed fast. If the evaluation the math model is computationally slow, one should set simul_type to be 0 to emulate the math model.}
+  \item{math_model}{a list of functions of the math models provided by the user for multiple sources. It is only useful if simul_type is 1, meaning that we know the math model and it can be computed fast. If  the math model is computationally slow, one should set simul_type to be 0 to emulate the math model. If defined, each element of the list is a function of math models, where the first input of the function is a vector of observable inputs and the second input is a vector of  calibration parameters. The output of each function is a scalar. Each function corresponds to one source of data. }
 
   \item{theta_range}{a p_theta x 2 matrix of the range of the calibration parameters. The first column is the lower bound and the second column  is the upper bound. It should be specified by the user if the simul_type is 0.}
 
@@ -91,12 +91,13 @@ Setting up the Calibration model for estimating the parameters via MCMC for mult
 
   \item{discrepancy_type}{a vector of characters about the type of the discrepancy for each source.  If it is 'no-discrepancy', it means no discrepancy function. If it is 'GaSP', it means the GaSP model for the discrepancy function. If it is 'S-GaSP', it means the S-GaSP model for the discrepancy function.}
 
-  \item{kernel_type}{a vector of characters about the type of the discrepancy.type of kernel for each source. \code{matern_3_2} and \code{matern_5_2} are \code{Matern kernel} with roughness parameter 3/2 and 5/2 respectively. \code{pow_exp} is power exponential kernel with roughness parameter alpha. If \code{pow_exp} is to be used, one needs to specify its roughness parameter alpha.}
+  \item{kernel_type}{a vector of characters about the type of kernel for each data source. \code{matern_3_2} and \code{matern_5_2} are \code{Matern kernel} with roughness parameter 3/2 and 5/2 respectively. \code{pow_exp} is power exponential kernel with roughness parameter alpha. If \code{pow_exp} is to be used, one needs to specify its roughness parameter alpha.}
  \item{lambda_z}{a \code{vector} numeric values about how close the math model to the reality in squared distance when the S-GaSP model is used for modeling the discrepancy for each source.}
  \item{a}{a vector of the prior parameter for multiple sources.}
   \item{b}{a vector of the prior parameter for multiple sources.}
   \item{alpha}{a list of vectors of roughness parameters in the kernel for multiple sources.}
   \item{output_weights}{a list of vectors of the weights of the outputs for multiple sources.}
+  \item{...}{Extra arguments to be passed to the function (not implemented yet).}
 
 %  \item{post_sample}{a matrix of the posterior samples after burn-in.}
 %  \item{post_value}{a vector of the posterior values after burn-in.}

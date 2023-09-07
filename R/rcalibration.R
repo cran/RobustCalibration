@@ -10,7 +10,7 @@ rcalibration <- function(design, observations, p_theta=NULL,X=matrix(0,dim(as.ma
                          S=10000,S_0=2000,thinning=1, discrepancy_type='S-GaSP', kernel_type='matern_5_2',
                          lambda_z=NA, a=1/2-dim(as.matrix(design))[2],b=1,
                          alpha=rep(1.9,dim(as.matrix(design))[2]), output_weights=rep(1,dim(as.matrix(design))[1]),
-                         method='post_sample',initial_values=NULL,num_initial_values=3){
+                         method='post_sample',initial_values=NULL,num_initial_values=3, ...){
   
   if(is.null(theta_range)){
     stop("Please specify the theta_range for the range of calibration parameters \n")
@@ -47,6 +47,11 @@ rcalibration <- function(design, observations, p_theta=NULL,X=matrix(0,dim(as.ma
       stop("input_simul and output_simul are needed to be specified for constructing the emulator \n")
       
     }
+  }
+  
+  ##perform kernel check 
+  if( (!(kernel_type=='matern_5_2'))&(!(kernel_type=='matern_3_2'))&(!(kernel_type=='pow_exp'))){
+    stop("only 'matern_5_2', 'matern_3_2' and 'pow_exp' are implemented. See kernel_type for more information.")
   }
   
   

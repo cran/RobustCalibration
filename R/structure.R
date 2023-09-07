@@ -61,7 +61,8 @@ setClass("predictobj.rcalibration", representation(
   mean = "vector",
   math_model_mean = "vector",
   math_model_mean_no_trend = "vector",
-  interval = "matrix"
+  interval = "matrix",
+  delta="vector"
 ),
 )
 

@@ -18,7 +18,7 @@ rcalibration_MS <- function(design, observations, p_theta=NULL, index_theta=NULL
                             lambda_z=as.list(rep(NA,length(design)+measurement_bias)),
                             #lambda_z=list(NA), 
                             a=NULL,b=NULL,alpha=NULL,
-                            output_weights=NULL){
+                            output_weights=NULL,...){
   
   
   if( !is.list(design) | !is.list(observations) ){
@@ -134,6 +134,10 @@ rcalibration_MS <- function(design, observations, p_theta=NULL, index_theta=NULL
         
       }
     }
+    if( (!(kernel_type[i]=='matern_5_2'))&(!(kernel_type[i]=='matern_3_2'))&(!(kernel_type[i]=='pow_exp'))){
+      stop("only 'matern_5_2', 'matern_3_2' and 'pow_exp' are implemented. See kernel_type for more information.")
+    }
+    
   }
   
   ##add some shared trend
@@ -146,6 +150,10 @@ rcalibration_MS <- function(design, observations, p_theta=NULL, index_theta=NULL
   if(measurement_bias){
     model@p_x[num_sources+1]=dim(model@input[[num_sources+1]])[2]
     model@num_obs[num_sources+1]=dim(model@input[[num_sources+1]])[1]
+    if( (!(kernel_type[num_sources+1]=='matern_5_2'))&(!(kernel_type[num_sources+1]=='matern_3_2'))&(!(kernel_type[num_sources+1]=='pow_exp'))){
+      stop("only 'matern_5_2', 'matern_3_2' and 'pow_exp' are implemented. See kernel_type  for more information.")
+    }
+    
   }
   
   if(!is.null(output_weights)){

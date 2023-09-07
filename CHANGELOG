@@ -1,3 +1,9 @@
+##change / RobustCalibration 0.5.4
+* Add more descriptions in Rd files of argument
+* Enable check for kernel_type and if a wrong kernel_type is supplied, the function will stop 
+* Allow users to pass more arguments in rcalibration and rclibration_MS functions
+* Output the predictive discrepancy in the predict.rcalibration function
+
 ##change / RobustCalibration 0.5.3
 * Fix a typo in rcalibration_MS when there is not discrepancy 
 * fix typos for the rcalibration_MS function

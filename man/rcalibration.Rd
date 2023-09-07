@@ -22,22 +22,22 @@ Setting up the Calibration model for estimating the parameters via MCMC with or 
   kernel_type='matern_5_2', lambda_z=NA, a=1/2-dim(as.matrix(design))[2], b=1,
   alpha=rep(1.9,dim(as.matrix(design))[2]), 
   output_weights=rep(1,dim(as.matrix(design))[1]),method='post_sample',
-  initial_values=NULL,num_initial_values=3)
+  initial_values=NULL,num_initial_values=3,...)
  % \S4method{show}{rgasp}(object)    
       
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{design}{a matrix of observed inputs.
+  \item{design}{a matrix of observed inputs where each row is a row vector of observable inputs corresponding to one observation, and the number of field or experimental data is the total number of rows. 
 %%     ~~Describe \code{design} here~~
 }
-  \item{observations}{ a vector of experimental data.
+  \item{observations}{a vector of field or experimental data. 
 %%     ~~Describe \code{response} here~~
 }
   \item{p_theta}{an integer about the number of parameters, which should be specified by the user. 
 %%     ~~Describe \code{response} here~~
 }
-  \item{X}{a matrix of the mean/trend discrepancy between the reality and math model. 
+  \item{X}{a matrix of the mean/trend discrepancy between the reality and math model. The number of rows of X is equal to the number of observations. The default values are a vector of zeros. 
 %%     ~~Describe \code{trend} here~~
 }
   \item{have_trend}{a bool value meaning whether we assume a mean/trend discrepancy  function.
@@ -59,14 +59,14 @@ Setting up the Calibration model for estimating the parameters via MCMC with or 
    a vector of the location index from the ppgasp emulator to output. Only useful for vectorized output computer model emulated by the ppgasp emulator.
 }
 
-  \item{math_model}{a function of the math model provided by the user. It is only useful if simul_type is 1, meaning that we know the math model and it can be computed fast. If the evaluation the math model is computationally slow, one should set simul_type to be 0 to emulate the math model. 
+  \item{math_model}{a function of the math model provided by the user. It is only useful if simul_type is 1, meaning that we know the math model and it can be computed fast. If the math model is computationally slow, one should set simul_type to be 0 to emulate the math model. One can input a function to define  a math_model where the first input of the function is a vector of observable inputs and the second input is a vector of  calibration parameters. The output of each function is a scalar. 
 }
 
   \item{theta_range}{a p_theta x 2 matrix of the range of the calibration parameters. The first column is the lower bound and the second column  is the upper bound. It should be specified by the user if the simul_type is 0. 
 }
 
 
-  \item{sd_proposal}{a vector of the standard deviation of the proposal distribution in MCMC.
+  \item{sd_proposal}{a vector of the standard deviation of the proposal distribution in MCMC. 
 }
 
 
@@ -82,7 +82,7 @@ Setting up the Calibration model for estimating the parameters via MCMC with or 
   \item{discrepancy_type}{characters about the type of the discrepancy.  If it is 'no-discrepancy', it means no discrepancy function. If it is 'GaSP', it means the GaSP model for the discrepancy function. If it is 'S-GaSP', it means the S-GaSP model for the discrepancy function.}
 
 
-  \item{kernel_type}{characters about the type of the discrepancy.type of kernel. \code{matern_3_2} and \code{matern_5_2} are \code{Matern kernel} with roughness parameter 3/2 and 5/2 respectively. \code{pow_exp} is power exponential kernel with roughness parameter alpha. If \code{pow_exp} is to be used, one needs to specify its roughness parameter alpha.}
+  \item{kernel_type}{characters about the type of the discrepancy type of kernel. \code{matern_3_2} and \code{matern_5_2} are \code{Matern kernel} with roughness parameter 3/2 and 5/2 respectively. \code{pow_exp} is power exponential kernel with roughness parameter alpha. If \code{pow_exp} is to be used, one needs to specify its roughness parameter alpha.}
  \item{lambda_z}{a \code{vector} value about how close the math model to the reality in squared distance when the S-GaSP model is used for modeling the discrepancy.}
  \item{a}{a scalar of the prior parameter.}
   \item{b}{a scalar of the prior parameter.}
@@ -95,7 +95,7 @@ Setting up the Calibration model for estimating the parameters via MCMC with or 
   \item{num_initial_values}{
 the number of initial values of the kernel parameters in optimization.
   }
-
+  \item{...}{Extra arguments to be passed to the function (not implemented yet)}
 %  \item{post_sample}{a matrix of the posterior samples after burn-in.}
 %  \item{post_value}{a vector of the posterior values after burn-in.}
 %  \item{accept_S}{a vector of  the number of proposed samples of the calibation parameters are accepted in MCMC. The first value is the number of proposed calibration parameters  are accepted in MCMC. The second value is  the number of proposed range and nugget parameters  are accepted, if  \code{discrepancy_type}  is specified as 'GaSP' or 'S-GaSP'.}
