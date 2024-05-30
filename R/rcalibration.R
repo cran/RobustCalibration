@@ -6,7 +6,7 @@
 rcalibration <- function(design, observations, p_theta=NULL,X=matrix(0,dim(as.matrix(design))[1],1), have_trend=FALSE,
                          simul_type=1, input_simul=NULL, output_simul=NULL,simul_nug=FALSE,loc_index_emulator=NULL,
                          math_model=NULL,
-                         theta_range=NULL, sd_proposal=c(rep(0.05,dim(as.matrix(theta_range) )[1]),rep(0.25,dim(as.matrix(design))[2]),0.25),
+                         theta_range=NULL, sd_proposal=NULL,
                          S=10000,S_0=2000,thinning=1, discrepancy_type='S-GaSP', kernel_type='matern_5_2',
                          lambda_z=NA, a=1/2-dim(as.matrix(design))[2],b=1,
                          alpha=rep(1.9,dim(as.matrix(design))[2]), output_weights=rep(1,dim(as.matrix(design))[1]),
@@ -54,7 +54,11 @@ rcalibration <- function(design, observations, p_theta=NULL,X=matrix(0,dim(as.ma
     stop("only 'matern_5_2', 'matern_3_2' and 'pow_exp' are implemented. See kernel_type for more information.")
   }
   
-  
+  ##set sd_proposal is not given
+  if(is.null(sd_proposal)){
+    sd_proposal=c(0.05*(as.matrix(theta_range)[,2]-as.matrix(theta_range)[,1]),
+      rep(0.25,dim(as.matrix(design))[2]),0.25)
+  }
   model <- new("rcalibration")
   design=as.matrix(design)
   ##make it a numeric matrix

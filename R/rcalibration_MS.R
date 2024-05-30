@@ -8,7 +8,7 @@ rcalibration_MS <- function(design, observations, p_theta=NULL, index_theta=NULL
                             X=as.list(rep(0,length(design))), have_trend=rep(FALSE,length(design)),
                             simul_type=rep(1, length(design)), input_simul=NULL, output_simul=NULL,
                             simul_nug=rep(FALSE,length(design)),loc_index_emulator=NULL,math_model=NULL,
-                            theta_range=NULL, sd_proposal_theta=rep(0.05,p_theta),
+                            theta_range=NULL, sd_proposal_theta=NULL,
                             sd_proposal_cov_par=NULL,
                             S=10000,S_0=2000, thinning=1,
                             measurement_bias=FALSE, shared_design=NULL,have_measurement_bias_recorded=F,
@@ -30,6 +30,10 @@ rcalibration_MS <- function(design, observations, p_theta=NULL, index_theta=NULL
     stop("Please specify `p_theta', the number of parameters to be calibrated \n")
   }
   
+  if(is.null(sd_proposal_theta)){
+    sd_proposal_theta=0.05*(as.matrix(theta_range)[,2]-as.matrix(theta_range)[,1])
+  }
+
   num_sources=length(design)   
   
   
@@ -343,7 +347,7 @@ rcalibration_MS <- function(design, observations, p_theta=NULL, index_theta=NULL
         
       }else{### ppgasp 
         
-        emulator[[i]]=ppgasp(design=input_simul[[i]], response=output_simul[[i]],nugget.est=simul_nug)
+        emulator[[i]]=ppgasp(design=input_simul[[i]], response=output_simul[[i]],nugget.est=simul_nug[i])
         model@emulator_type[i]='ppgasp'
         model@emulator_ppgasp[[i]]=emulator[[i]]
           

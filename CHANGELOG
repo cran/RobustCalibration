@@ -1,3 +1,10 @@
+##change / RobustCalibration 0.5.5
+* Enable emulator to be used for predict_MS
+* Change the default setting of first p_theta term of sd_proposal to be 0.05 of the theta range 
+* Change the default setting of sd_proposal_theta in rcalibration_MS to be 0.05 of the theta range
+* Update the nugget in rcalibration_MS
+* Update Rd files relevant to this issues 
+
 ##change / RobustCalibration 0.5.4
 * Add more descriptions in Rd files of argument
 * Enable check for kernel_type and if a wrong kernel_type is supplied, the function will stop 

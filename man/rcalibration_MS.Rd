@@ -18,8 +18,9 @@ Setting up the Calibration model for estimating the parameters via MCMC for mult
                   simul_type=rep(1, length(design)),
                   input_simul=NULL, output_simul=NULL,
                   simul_nug=rep(FALSE,length(design)),loc_index_emulator=NULL,
-                  math_model=NULL,
-                  theta_range=NULL, sd_proposal_theta=rep(0.05,p_theta),
+                  math_model=NULL, 
+                  theta_range=NULL, 
+                  sd_proposal_theta=NULL, 
                   sd_proposal_cov_par=NULL,
                   S=10000,S_0=2000, thinning=1,measurement_bias=FALSE, 
                   shared_design=NULL,have_measurement_bias_recorded=F,
@@ -71,7 +72,7 @@ Setting up the Calibration model for estimating the parameters via MCMC for mult
   \item{theta_range}{a p_theta x 2 matrix of the range of the calibration parameters. The first column is the lower bound and the second column  is the upper bound. It should be specified by the user if the simul_type is 0.}
 
 
-  \item{sd_proposal_theta}{a vector of the standard deviation of the proposal distribution for the calibration parameters in MCMC.}
+  \item{sd_proposal_theta}{a vector of the standard deviation of the proposal distribution for the calibration parameters in MCMC. The default value of sd of the calibration parameter is 0.05 times \code{theta_range}. }
     \item{sd_proposal_cov_par}{a list of vectors of the standard deviation of the proposal distribution for range and nugget parameters in MCMC for each source.}
 
 

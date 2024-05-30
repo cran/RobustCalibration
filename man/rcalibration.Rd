@@ -16,8 +16,7 @@ Setting up the Calibration model for estimating the parameters via MCMC with or 
   X=matrix(0,dim(as.matrix(design))[1],1), 
   have_trend=FALSE, simul_type=1, input_simul=NULL,output_simul=NULL,simul_nug=FALSE,
   loc_index_emulator=NULL,math_model=NULL, theta_range=NULL,
-  sd_proposal=c(rep(0.05,dim(as.matrix(theta_range) )[1]),
-                rep(0.25,dim(as.matrix(design))[2]),0.25),
+  sd_proposal=NULL, 
   S=10000,S_0=2000,thinning=1, discrepancy_type='S-GaSP',
   kernel_type='matern_5_2', lambda_z=NA, a=1/2-dim(as.matrix(design))[2], b=1,
   alpha=rep(1.9,dim(as.matrix(design))[2]), 
@@ -66,7 +65,7 @@ Setting up the Calibration model for estimating the parameters via MCMC with or 
 }
 
 
-  \item{sd_proposal}{a vector of the standard deviation of the proposal distribution in MCMC. 
+  \item{sd_proposal}{a vector of the standard deviation of the proposal distribution in MCMC. The default value of sd of the calibration parameter is 0.05 times \code{theta_range}. The rest is set to be 0.05. 
 }
 
 

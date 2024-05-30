@@ -59,9 +59,9 @@ predict_MS_no_measurement_bias<-function(object, testing_input, X_testing=as.lis
   for(i_source in 1:object@num_sources){
     if(object@simul_type[[i_source]]==0){
       if(length(object@emulator_ppgasp[[i_source]]@p>0)){ ##ppgasp
-        emulator=object@emulator_ppgasp[[i_source]]
+        emulator[[i_source]]=object@emulator_ppgasp[[i_source]] ##add sources
       }else{
-        emulator=object@emulator_rgasp[[i_source]]
+        emulator[[i_source]]=object@emulator_rgasp[[i_source]]
         
       }
       
@@ -102,7 +102,7 @@ predict_MS_no_measurement_bias<-function(object, testing_input, X_testing=as.lis
         theta=object@post_theta[i_S,] ##shared parameter
         sigma_2_0=object@post_individual_par[[i_source]][i_S,1] #the first one is the sigma_2
         
-        mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],object@emulator[[i_source]],
+        mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],emulator[[i_source]],
                                              object@emulator_type[i_source],object@loc_index_emulator[[i_source]], math_model[[i_source]]);
         mean_cm_test_no_mean=mean_cm_test
         if(object@have_trend[i_source]){
@@ -200,7 +200,7 @@ predict_MS_no_measurement_bias<-function(object, testing_input, X_testing=as.lis
           theta_m=as.matrix(object@post_individual_par[[i_source]][i_S,(object@p_x[i_source]+3):(object@p_x[i_source]+2+object@q[i_source])])
         }
         
-        mean_cm=mathematical_model_eval(object@input[[i_source]],theta,object@simul_type[[i_source]],object@emulator[[i_source]],
+        mean_cm=mathematical_model_eval(object@input[[i_source]],theta,object@simul_type[[i_source]],emulator[[i_source]],
                                         object@emulator_type[i_source],object@loc_index_emulator[[i_source]],math_model[[i_source]]);
         
         output_minus_cm=object@output[[i_source]]- mean_cm
@@ -233,7 +233,7 @@ predict_MS_no_measurement_bias<-function(object, testing_input, X_testing=as.lis
         
         rt_R_inv_y=t(r)%*%R_inv_y
         
-        mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],object@emulator[[i_source]],
+        mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],emulator[[i_source]],
                                              object@emulator_type[i_source],object@loc_index_emulator[[i_source]],math_model[[i_source]]);
         mean_cm_test_no_mean=mean_cm_test
         #f_M_testing=mean_cm_test
@@ -369,9 +369,9 @@ predict_MS_with_measurement_bias<-function(object, testing_input, X_testing=as.l
     for(i_source in 1:object@num_sources){
       if(object@simul_type[[i_source]]==0){
         if(length(object@emulator_ppgasp[[i_source]]@p>0)){ ##ppgasp
-          emulator=object@emulator_ppgasp[[i_source]]
+          emulator[[i_source]]=object@emulator_ppgasp[[i_source]]
         }else{
-          emulator=object@emulator_rgasp[[i_source]]
+          emulator[[i_source]]=object@emulator_rgasp[[i_source]]
           
         }
         
@@ -415,7 +415,7 @@ predict_MS_with_measurement_bias<-function(object, testing_input, X_testing=as.l
       for(i_S in (1: SS)*n_thinning ){
         count_here=count_here+1
         theta=object@post_theta[i_S,]
-        mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],object@emulator[[i_source]],
+        mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],emulator[[i_source]],
                                              object@emulator_type[i_source],object@loc_index_emulator[[i_source]],math_model[[i_source]]);
         mean_cm_test_no_mean=mean_cm_test
         #f_M_testing=mean_cm_test
@@ -561,7 +561,7 @@ predict_MS_with_measurement_bias<-function(object, testing_input, X_testing=as.l
         #eta_delta=exp(object@post_individual_par[[i_source]][i_S,object@p_x+1])
         
 
-        mean_cm=mathematical_model_eval(object@input[[i_source]],theta,object@simul_type[[i_source]],object@emulator[[i_source]],
+        mean_cm=mathematical_model_eval(object@input[[i_source]],theta,object@simul_type[[i_source]],emulator[[i_source]],
                                         object@emulator_type[i_source],object@loc_index_emulator[[i_source]],math_model[[i_source]]);
 
         output_minus_cm=object@output[[i_source]]- mean_cm
@@ -698,7 +698,20 @@ predict_separable_2dim_MS<-function(object, testing_input_separable,
 predict_separable_2dim_MS_no_measurement_bias<-function(object,testing_input_separable,X_testing,math_model){
   predictobj <- new("predictobj.rcalibration_MS")
 
-
+  emulator=as.list(rep(NA,object@num_sources))
+  
+  for(i_source in 1:object@num_sources){
+    if(object@simul_type[[i_source]]==0){
+      if(length(object@emulator_ppgasp[[i_source]]@p>0)){ ##ppgasp
+        emulator[[i_source]]=object@emulator_ppgasp[[i_source]] ##add sources
+      }else{
+        emulator[[i_source]]=object@emulator_rgasp[[i_source]]
+        
+      }
+      
+    }
+  }
+  
   r_separable=list()
   r0_separable=list()
   for(i_source in 1:object@num_sources){
@@ -743,9 +756,9 @@ predict_separable_2dim_MS_no_measurement_bias<-function(object,testing_input_sep
           theta_m=as.matrix(object@post_individual_par[[i_source]][i_S,(object@p_x[i_source]+3):(object@p_x[i_source]+2+object@q[i_source])])
         }
 
-        #mean_cm=mathematical_model_eval(object@input[[i_source]],theta,object@simul_type[[i_source]],object@emulator[[i_source]],math_model[[i_source]]);
+        #mean_cm=mathematical_model_eval(object@input[[i_source]],theta,object@simul_type[[i_source]],emulator[[i_source]],math_model[[i_source]]);
         #Sep 2022
-        mean_cm=mathematical_model_eval(object@input[[i_source]],theta,object@simul_type[i_source],object@emulator[[i_source]],
+        mean_cm=mathematical_model_eval(object@input[[i_source]],theta,object@simul_type[i_source],emulator[[i_source]],
                                              object@emulator_type[i_source],object@loc_index_emulator[[i_source]], math_model[[i_source]]);
         
         output_minus_cm=object@output[[i_source]]- mean_cm
@@ -793,9 +806,9 @@ predict_separable_2dim_MS_no_measurement_bias<-function(object,testing_input_sep
 
         #rt_R_inv_y=t(r)%*%R_inv_y
 
-        #mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],object@emulator[[i_source]],math_model[[i_source]]);
+        #mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],emulator[[i_source]],math_model[[i_source]]);
         #Sep 2022
-        mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],object@emulator[[i_source]],
+        mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],emulator[[i_source]],
                                              object@emulator_type[i_source],object@loc_index_emulator[[i_source]], math_model[[i_source]]);
         
         mean_cm_test_no_mean=mean_cm_test
@@ -852,6 +865,20 @@ predict_separable_2dim_MS_with_measurement_bias<-function(object,testing_input_s
 
   predictobj <- new("predictobj.rcalibration_MS")
 
+  emulator=as.list(rep(NA,object@num_sources))
+  
+  for(i_source in 1:object@num_sources){
+    if(object@simul_type[[i_source]]==0){
+      if(length(object@emulator_ppgasp[[i_source]]@p>0)){ ##ppgasp
+        emulator[[i_source]]=object@emulator_ppgasp[[i_source]] ##add sources
+      }else{
+        emulator[[i_source]]=object@emulator_rgasp[[i_source]]
+        
+      }
+      
+    }
+  }
+  
   SS=dim(object@post_individual_par[[1]])[1]
 
   num_sources_1=object@num_sources+1
@@ -871,9 +898,9 @@ predict_separable_2dim_MS_with_measurement_bias<-function(object,testing_input_s
 
     for(i_S in (1: SS) ){
       theta=object@post_theta[i_S,]
-      #mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],object@emulator[[i_source]],math_model[[i_source]]);
+      #mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],emulator[[i_source]],math_model[[i_source]]);
       ##Sep 2022
-      mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],object@emulator[[i_source]],
+      mean_cm_test=mathematical_model_eval(testing_input[[i_source]],theta,object@simul_type[i_source],emulator[[i_source]],
                                            object@emulator_type[i_source],object@loc_index_emulator[[i_source]], math_model[[i_source]]);
       
       mean_cm_test_no_mean=mean_cm_test
@@ -988,9 +1015,9 @@ predict_separable_2dim_MS_with_measurement_bias<-function(object,testing_input_s
       #sigma_2_0=object@post_individual_par[[i_source]][i_S,object@p_x[i_source]+2]
       #sigma_2_delta=sigma_2_0/eta_delta
       
-      #mean_cm=mathematical_model_eval(object@input[[i_source]],theta,object@simul_type[[i_source]],object@emulator[[i_source]],math_model[[i_source]]);
+      #mean_cm=mathematical_model_eval(object@input[[i_source]],theta,object@simul_type[[i_source]],emulator[[i_source]],math_model[[i_source]]);
       #Sep 2022
-      mean_cm=mathematical_model_eval(object@input[[i_source]],theta,object@simul_type[i_source],object@emulator[[i_source]],
+      mean_cm=mathematical_model_eval(object@input[[i_source]],theta,object@simul_type[i_source],emulator[[i_source]],
                                       object@emulator_type[i_source],object@loc_index_emulator[[i_source]], math_model[[i_source]]);
       
       output_minus_cm=object@output[[i_source]]- mean_cm

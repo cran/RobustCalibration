@@ -17,8 +17,7 @@ Objects of this class are created and initialized with the function \code{\link{
     \item{\code{p_theta}:}{Object of class \code{integer}. The number of calibration parameters.}
     \item{\code{num_obs}:}{Object of class \code{vector}.Each element is the number of experimental observations of each source.}
     \item{\code{index_theta}:}{Object of class \code{list}. The each element is a \code{vector} of the index of calibration parameters (theta) contained in each source. }
-    
-    \item{\code{input}:}{Object of class \code{list}. Each element is a \code{matrix} of the design of experiments in each source with dimension n_i x p_{x,i}, for i=1,...,num_sources.}
+    \item{\code{input}:}{Object of class \code{list}. Each element is a \code{matrix} of the design of experiments in each source with dimension \code{n_i x p_{x,i}}, for i=1,...,num_sources.}
     \item{\code{output}:}{Object of class \code{list}. Each element is a \code{vector} of the experimental observations in each source with dimension n_i x 1, for i=1,...,num_sources.}
     \item{\code{X}:}{Object of class \code{list}. Each element is a \code{matrix} of the mean/trend discrepancy basis function in each source with dimension n_i x q_i,  for i=1,...,num_sources.}
         \item{\code{have_trend}:}{Object of class \code{vector}. Each element is a  \code{bool} to specify whether the mean/trend discrepancy is zero in each source. "TRUE" means it has zero mean discrepancy and "FALSE"" means the mean discrepancy is not zero.}
