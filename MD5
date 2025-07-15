@@ -1,5 +1,5 @@
-2b6347b7683ba8fe44cbc7a59f5dd4d2 *CHANGELOG
-09ef6a47e7fef23a4bb538da2e674ca1 *DESCRIPTION
+5f11da048c249c398eb9e23ff1633f63 *CHANGELOG
+504175a74d2e4f2bc8bdcdfafa288353 *DESCRIPTION
 26226efb55f37f866e4a39c976f3c29f *NAMESPACE
 507df455f8055bf222faeb9ac5544923 *R/RcppExports.R
 bad079a41833dc895b3ee209d935012d *R/functions.R
@@ -9,7 +9,7 @@ fbeb7438979e92169bd73906ed2d8c99 *R/predict_MS.R
 a016c8e76e39d815e951d0756223a20d *R/rcalibration.R
 702e96a7052951e8c9f6896771d3076c *R/rcalibration_MS.R
 fe55c8a810e1db0db37c04bfe8b0ef50 *R/structure.R
-8055b7ab7fea54b8f03ae1ad1ce9e32f *build/partial.rdb
+9ffc5bd279e49fa836f9b69e7d4a496b *build/partial.rdb
 14c9885c1b1a40e6351503e7996c1e89 *inst/extdata/example.r
 556110f8e2125ce21c9e29eaf7bfb4b1 *inst/include/RobustCalibration.h
 1debc0c4b1a7859404bbec2b580dbe77 *man/Accept_proposal.Rd
